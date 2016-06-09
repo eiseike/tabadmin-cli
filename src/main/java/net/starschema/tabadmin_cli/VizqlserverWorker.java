@@ -13,13 +13,15 @@ import java.util.regex.Pattern;
  */
 public class VizqlserverWorker implements Worker {
 
+    static final String BALANCERMEMBER_NAME="vizqlserver-cluster";
+
     String memberName;
     String route;
     String nonce;
     int jmxPort;
 
     public static List<VizqlserverWorker> getworkersFromHtml(String body) throws Exception {
-        return HttpClientHelper.getworkersFromHtml(body, "vizqlserver-cluster");
+        return HttpClientHelper.getworkersFromHtml(body, BALANCERMEMBER_NAME);
     }
 
     public VizqlserverWorker(String memberName, String route, String nonce, int jmxPort) {
@@ -27,6 +29,10 @@ public class VizqlserverWorker implements Worker {
         this.route=route;
         this.nonce=nonce;
         this.jmxPort=jmxPort;
+    }
+
+    public String toString() {
+        return "vizqlserver " + this.route+ " " + this.memberName;
     }
 
 }

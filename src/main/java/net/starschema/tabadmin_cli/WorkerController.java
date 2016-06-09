@@ -5,11 +5,9 @@ package net.starschema.tabadmin_cli;
  */
 public class WorkerController {
 
-    boolean Disable(Worker worker, boolean set_to) {
+    static boolean Disable(Worker worker, boolean set_to) {
         return true;
     }
-    boolean Drain(Worker worker, boolean set_to){
-        return true;
-    }
+    static boolean Drain(Worker worker, boolean set_to){ return true; }
 
 }

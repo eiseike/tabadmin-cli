@@ -1,12 +1,20 @@
 package net.starschema.tabadmin_cli;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
 
 import javax.management.MalformedObjectNameException;
-import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +27,50 @@ public class HttpClientHelper {
     public static String getPage(String targetURL) throws IOException {
         return Request.Get(targetURL).execute().returnContent().toString();
     }
+
+    public static String ModifyWorker(String targetURL, VizqlserverWorker w, HashMap<String, Integer> switches) {
+
+        String returnMe = null;
+        CloseableHttpClient client =null;
+        try {
+
+            //curl -o semmit.txt -s -XPOST "http://localhost/balancer-manager?" -d b="a" -d w="http://127.0.0.1/A" -d nonce="e6421e73-56aa-b245-b1a5-c54744e90942" -d w_status_D=1
+
+            client = HttpClients.createDefault();
+            HttpPost httpPost = new HttpPost(targetURL);
+
+            List<NameValuePair> params = new ArrayList<NameValuePair>();
+
+            for (Map.Entry<String, Integer> entry : switches.entrySet())
+            {
+                params.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
+                System.out.println(entry.getKey() + "/" + entry.getValue());
+            }
+            params.add(new BasicNameValuePair("b", w.BALANCERMEMBER_NAME ));
+
+            params.add(new BasicNameValuePair("w", w.memberName));
+            params.add(new BasicNameValuePair("nonce", w.nonce));
+            httpPost.setEntity(new UrlEncodedFormEntity(params));
+
+            CloseableHttpResponse response = client.execute(httpPost);
+            System.out.println(response.getStatusLine().getStatusCode());
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (client != null) {
+                try {
+                    client.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return returnMe;
+    }
+
+
 
     static List<VizqlserverWorker> getworkersFromHtml(String body, String clusterName) throws Exception {
 

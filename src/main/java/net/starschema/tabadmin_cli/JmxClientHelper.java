@@ -7,15 +7,16 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
 
 public class JmxClientHelper {
 
     JMXConnector jmxc;
     JMXServiceURL url;
+
+    public JmxClientHelper() throws MalformedObjectNameException {
+        this.jmxc = null;
+        this.url = null;
+    }
 
     public boolean CheckBeanExists(String objectName) throws Exception {
         if (jmxc == null || url == null) {
@@ -30,13 +31,37 @@ public class JmxClientHelper {
         return true;
     }
 
-    public JmxClientHelper() throws MalformedObjectNameException {
-        this.jmxc = null;
-        this.url = null;
+
+    public String getActiveSessions() throws Exception {
+        return getPerformanceMetrics("tableau.health.jmx:name=vizqlservice","ActiveSessions");
     }
 
-    public void Close() throws IOException {
-        this.jmxc.close();
+    //return something for the Tableu jmx server's getPerformanceMetrics.
+    private String getPerformanceMetrics(String objectName, String variableName) {
+        MBeanServerConnection mbsc = GetBeans();
+        CompositeData invoked = null;
+        try {
+            invoked = (CompositeData)mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
+        } catch (InstanceNotFoundException e) {
+            e.printStackTrace();
+        } catch (MBeanException e) {
+            e.printStackTrace();
+        } catch (ReflectionException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (MalformedObjectNameException e) {
+            e.printStackTrace();
+        }
+        return(invoked.get(variableName).toString());
+    }
+
+    public void Close()  {
+        try {
+            this.jmxc.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void ConnectService(String JMXServiceURL) {
