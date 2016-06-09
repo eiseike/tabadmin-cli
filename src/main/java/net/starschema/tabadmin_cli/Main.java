@@ -1,21 +1,31 @@
 package net.starschema.tabadmin_cli;
 
 
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 
 public class Main {
 
+    final static Logger logger = Logger.getLogger(Main.class);
+
+
     public static void main(String[] args) {
 
-            JmxClientHelper.Connect();
+        BasicConfigurator.configure();
 
-//        try {
-//            CliControl.RestartWorkers();
-//        } catch (IOException e) {
-//            System.out.println("Cannot connect to the balancer-manager.");
-////            e.printStackTrace();
-//        } catch (Exception e) {
+        try {
+            CliControl.RestartWorkers();
+        } catch (IOException e) {
+
+
+
+            logger.fatal("Cannot connect to the balancer-manager.");
 //            e.printStackTrace();
-//        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

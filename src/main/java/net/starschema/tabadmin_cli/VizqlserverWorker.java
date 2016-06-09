@@ -14,20 +14,19 @@ import java.util.regex.Pattern;
 public class VizqlserverWorker implements Worker {
 
     String memberName;
+    String route;
     String nonce;
-    String jmxPort;
+    int jmxPort;
 
     public static List<VizqlserverWorker> getworkersFromHtml(String body) throws Exception {
         return HttpClientHelper.getworkersFromHtml(body, "vizqlserver-cluster");
     }
 
-    public VizqlserverWorker() {
-
-
-        memberName = "???";
-        nonce = "???";
-        jmxPort = "???";
-
+    public VizqlserverWorker(String memberName, String route, String nonce, int jmxPort) {
+        this.memberName=memberName;
+        this.route=route;
+        this.nonce=nonce;
+        this.jmxPort=jmxPort;
     }
 
 }

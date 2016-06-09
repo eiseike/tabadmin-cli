@@ -2,6 +2,7 @@ package net.starschema.tabadmin_cli;
 
 import org.apache.http.client.fluent.Request;
 
+import javax.management.MalformedObjectNameException;
 import javax.management.remote.JMXConnector;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,14 +21,12 @@ public class HttpClientHelper {
     }
 
     static List<VizqlserverWorker> getworkersFromHtml(String body, String clusterName) throws Exception {
-        //végigmegyünk a testen
-
-        //kikeressük ezt a sort: balancer://vizqlserver-cluster => nonce=7436df2a-dbbd-db43-87c0-ffb12e83ed31
 
         String regex;
         Pattern p;
         String nonce="";
 
+        //search for the cluster's nonce string
         regex = "<h3>.*&nonce=([^\"]+)\">balancer://" + clusterName + "</a>.*";
         p = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
         String[] bodySlpit = body.split("\n");
@@ -35,31 +34,53 @@ public class HttpClientHelper {
             Matcher m = p.matcher(s);
             if (m.matches()) {
                 nonce = m.group(1);
+
                 break;
             }
         }
 
         if (nonce=="") {
-            throw new Exception("Cannot found the vizqlserver ("+regex+")load balancer in balancer-manager");
+            throw new Exception("Cannot found the vizqlserver load balancer in balancer-manager");
         }
 
-
-
-        regex = "<td><a href=\"/balancer-manager\\?b=" + clusterName + "&w=([^&]+)&nonce=" + nonce+".*";
-
-
-
-
-        Pattern p2 = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
         List<VizqlserverWorker> workers = new ArrayList<VizqlserverWorker>();
+
+        //Search for the workers' name
         for (String s: bodySlpit) {
-            Matcher m2 = p2.matcher(s);
-            if (m2.matches()) {
-                String worker = m2.group(1);
+            regex = "<td><a href=\"/balancer-manager\\?b=" + clusterName + "&w=([^&]+)&nonce=" + nonce+"[^<]*</a></td><td>([^<]+).*";
+            p = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
+            Matcher m = p.matcher(s);
+            if (m.matches()) {
+                String memberName = m.group(1);
+                String route = m.group(2);
 
-                //már csak a jmx port kell
+                regex = ".*:([0-9]+)";
+                p = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
+                m = p.matcher(memberName);
 
+                if (!m.matches()) {
+                    throw new Exception("Cannot found the vizqlserver workers' port");
+                }
 
+                //calculate JMX port
+                int jmxPort = Integer.parseInt(m.group(1))+300;
+
+                //check if port exists
+                try {
+                    JmxClientHelper kliens = new JmxClientHelper();
+                    kliens.ConnectService("service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi");
+                    if (!kliens.CheckBeanExists("tableau.health.jmx:name=vizqlservice")) {
+                        throw new Exception("Cannot found the required MBean");
+                    }
+                    kliens.Close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (MalformedObjectNameException e) {
+                    e.printStackTrace();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                workers.add(new VizqlserverWorker(memberName, route, nonce, jmxPort));
             }
         }
         return workers;

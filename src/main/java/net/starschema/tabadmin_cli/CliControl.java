@@ -1,6 +1,6 @@
 package net.starschema.tabadmin_cli;
 
-import java.io.IOException;
+import org.apache.log4j.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,8 +9,10 @@ import java.util.List;
  */
 public class CliControl {
 
+    final static Logger logger = Logger.getLogger(CliControl.class);
+
     private static final String balancerManagerUrl = "http://localhost/balancer-manager";
-    
+
     private CliControl() {
     }
 
@@ -43,9 +45,12 @@ public class CliControl {
 
         System.out.println("Locating vizqlserver-cluster workers from balancer-manager");
 
+
         String body = HttpClientHelper.getPage(balancerManagerUrl);
         workers=VizqlserverWorker.getworkersFromHtml(body);
-
+        for (VizqlserverWorker w:workers) {
+            System.out.println(w.memberName+", "+w.route+", "+w.nonce+", "+w.jmxPort);
+        }
         return null;
     }
 }
