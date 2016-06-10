@@ -1,5 +1,6 @@
 package net.starschema.tabadmin_cli;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import org.apache.log4j.Logger;
 
 import javax.management.MalformedObjectNameException;
@@ -14,18 +15,18 @@ public class CliControl {
 
     final static Logger logger = Logger.getLogger(CliControl.class);
 
-    private static final String BALANCER_MANAGER_URL = "http://localhost/balancer-manager";
+    public static final String BALANCER_MANAGER_URL = "http://localhost/balancer-manager";
 
     private CliControl() {
     }
 
     public static void SleepSTDOUTFor(int secs) throws InterruptedException {
-        if (secs<2) {
-            secs=2;
+        if (secs < 2) {
+            secs = 2;
         }
-        for (int run=0;run<2;run++){
-            for (int i=0;i<(int)secs/2;i++) {
-                System.out.print(run==0?".":".");
+        for (int run = 0; run < 2; run++) {
+            for (int i = 0; i < (int) secs / 2; i++) {
+                System.out.print(run == 0 ? "." : ".");
                 Thread.sleep(100);
             }
 
@@ -35,80 +36,70 @@ public class CliControl {
 
     public static String RestartWorkers() throws Exception {
 
-
-//        Graceful restart worker 0:0
-//        Switch worker to Draining mode
-//        Connecting to JMX endpoint jmx://localhost:9400
-//        Number of active sessions 3. Sleeping 60secs
-//        Number of active sessions 1. Sleeping 60secs
-//        No active sessions.
-//                Switch worker to Disabled mode
-//        Sending stop signal to process 1844. Sleeping 60 secs
-//        Switch worker to Non-disabled mode
-//        Graceful restart worker 0:1
-//        Switch worker to Draining mode
-//        Connecting to JMX endpoint jmx://localhost:9401
-//        Number of active sessions 1. Sleeping 60secs
-//        No active sessions.
-//                Switch worker to Disabled mode
-//        Sending stop signal to process 9176. Sleeping 60 secs
-//        Switch worker to Non-disabled mode
-//        Graceful restart complete
-
-
         List<VizqlserverWorker> workers = new ArrayList<VizqlserverWorker>();
 
         System.out.println("Locating vizqlserver-cluster workers from balancer-manager");
 
         String body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
-        workers=VizqlserverWorker.getworkersFromHtml(body);
-        for (VizqlserverWorker w:workers) {
-           System.out.println(w.toString());
+        workers = VizqlserverWorker.getworkersFromHtml(body);
+        for (VizqlserverWorker w : workers) {
+            System.out.println(w.toString());
         }
-        for (VizqlserverWorker w:workers) {
-            System.out.println("Graceful restart worker " + w.route);
-            System.out.println("Switch worker to Draining mode");
-            //TODO: :)
-            System.out.println("Connecting to JMX endpoint jmx://localhost:"+w.jmxPort);
+        for (VizqlserverWorker w : workers) {
 
-            JmxClientHelper kliens=null;
+
+            System.out.println("Graceful restart worker " + w.getRoute());
+            System.out.println("Switch worker to Draining mode");
+
+            WorkerController.Drain(w,true);
+
+            System.out.print("Wait for it!");
+            CliControl.SleepSTDOUTFor(60);
+
+            System.out.println("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
+
+            JmxClientHelper kliens = null;
             try {
                 kliens = new JmxClientHelper();
-                kliens.ConnectService("service:jmx:rmi:///jndi/rmi://:" + w.jmxPort + "/jmxrmi");
+                kliens.ConnectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
 
                 int currentSessions = Integer.parseInt(kliens.getActiveSessions());
                 boolean done = false;
                 while (!done) {
                     if (0 == currentSessions) {
                         System.out.println("No active sessions.");
-
                         System.out.println("Switch worker to Disabled mode");
-                HttpClientHelper.ModifyWorker(
-                        BALANCER_MANAGER_URL,
-                        w,
-                        new HashMap<String, Integer>(){{put("w_status_D", 1);}}
-                );
+                        WorkerController.Disable(w,true);
+
+                        System.out.print("Wait for it!");
+                        CliControl.SleepSTDOUTFor(60);
+
+                        int pid = w.getProcessId();
+                        System.out.println("Sending stop signal to process "+pid+". Sleeping 60 secs");
+                        WorkerController.Kill(w);
+                        CliControl.SleepSTDOUTFor(60);
 
 
-
-                        //TODO: :)
-                        System.out.println("Sending stop signal to process 1844. Sleeping 60 secs");
-                        //TODO :|
+                        System.out.println("Switch worker to Non-disabled mode");
+                        WorkerController.Drain(w,false);
+                        WorkerController.Disable(w,false);
 
                         done = true;
                     } else {
-                        System.out.print("Number of active sessions "+kliens.getActiveSessions()+". Sleeping 60secs ");
+                        System.out.print("Number of active sessions " + kliens.getActiveSessions() + ". Sleeping 60secs ");
                         CliControl.SleepSTDOUTFor(60);
                     }
                 }
+
+                System.out.println("Graceful restart complete");
 
             } catch (MalformedObjectNameException e) {
                 e.printStackTrace();
             } catch (Exception e) {
                 e.printStackTrace();
-            } finally{
+            } finally {
 
-                if (kliens!=null) {
+                if (kliens != null) {
                     kliens.Close();
                 }
             }

@@ -28,13 +28,11 @@ public class HttpClientHelper {
         return Request.Get(targetURL).execute().returnContent().toString();
     }
 
-    public static String ModifyWorker(String targetURL, VizqlserverWorker w, HashMap<String, Integer> switches) {
+    public static String ModifyWorker(String targetURL, Worker w, HashMap<String, Integer> switches) {
 
         String returnMe = null;
         CloseableHttpClient client =null;
         try {
-
-            //curl -o semmit.txt -s -XPOST "http://localhost/balancer-manager?" -d b="a" -d w="http://127.0.0.1/A" -d nonce="e6421e73-56aa-b245-b1a5-c54744e90942" -d w_status_D=1
 
             client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(targetURL);
@@ -46,10 +44,9 @@ public class HttpClientHelper {
                 params.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
                 System.out.println(entry.getKey() + "/" + entry.getValue());
             }
-            params.add(new BasicNameValuePair("b", w.BALANCERMEMBER_NAME ));
-
-            params.add(new BasicNameValuePair("w", w.memberName));
-            params.add(new BasicNameValuePair("nonce", w.nonce));
+            params.add(new BasicNameValuePair("b", w.getBalancerMemberName() ));
+            params.add(new BasicNameValuePair("w", w.getName()));
+            params.add(new BasicNameValuePair("nonce", w.getNonce()));
             httpPost.setEntity(new UrlEncodedFormEntity(params));
 
             CloseableHttpResponse response = client.execute(httpPost);
@@ -66,7 +63,7 @@ public class HttpClientHelper {
                 }
             }
         }
-
+        //TODO: check response. Must be 200.
         return returnMe;
     }
 
