@@ -1,29 +1,27 @@
 package net.starschema.tabadmin_cli;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class WindowsTaskHelper {
+class WindowsTaskHelper {
 
-    public WindowsTaskHelper() throws IOException {
+    public WindowsTaskHelper() throws Exception {
     }
 
-    public static void killProcessByPid(int tokill) throws Exception {
+    static void killProcessByPid(int toKill) throws Exception {
 
-        String cmd = CliControl.TASK_KILLER + " " + tokill;
+        String cmd = CliControl.TASK_KILLER + " " + toKill;
         Runtime.getRuntime().exec(cmd);
 
     }
 
-    public static int searchForPidInWmic( Pattern pattern) throws IOException {
+    static int searchForPidInWmic( Pattern pattern) throws Exception {
         String line;
         Process p = Runtime.getRuntime().exec
                 (System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
                         " PROCESS get Processid, Commandline");
-
         BufferedReader input =
                 new BufferedReader(new InputStreamReader(p.getInputStream()));
         while ((line = input.readLine()) != null) {

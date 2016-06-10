@@ -11,7 +11,7 @@ abstract class AbstractWorker implements Worker {
     public abstract int getJmxPort();
 
     public int getProcessId() throws Exception {
-        String regex = "^\"([^\"])*vizqlserver.exe\".*Dcom\\.sun\\.management\\.jmxremote\\.port=9400 .*\\s+([0-9]+)\\s*$";
+        String regex = "^\"([^\"])*vizqlserver.exe\".*Dcom\\.sun\\.management\\.jmxremote\\.port="+getJmxPort()+" .*\\s+([0-9]+)\\s*$";
         Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
 
         int pid = WindowsTaskHelper.searchForPidInWmic(pattern);

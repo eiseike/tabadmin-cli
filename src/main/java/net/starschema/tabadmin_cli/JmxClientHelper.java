@@ -5,20 +5,20 @@ import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+import java.io.Closeable;
 import java.io.IOException;
-import java.net.MalformedURLException;
 
-public class JmxClientHelper {
+class JmxClientHelper implements Closeable {
 
-    JMXConnector jmxc;
-    JMXServiceURL url;
+    private JMXConnector jmxc;
+    private JMXServiceURL url;
 
-    public JmxClientHelper() throws MalformedObjectNameException {
+    JmxClientHelper()  {
         this.jmxc = null;
         this.url = null;
     }
 
-    public boolean checkBeanExists(String objectName) throws Exception {
+    boolean checkBeanExists(String objectName) throws Exception {
         if (jmxc == null || url == null) {
             throw new Exception("Cannot check Mbean without connection");
         }
@@ -31,81 +31,29 @@ public class JmxClientHelper {
         return true;
     }
 
-
-    public String getActiveSessions() throws Exception {
-        return getPerformanceMetrics("tableau.health.jmx:name=vizqlservice","ActiveSessions");
+    String getActiveSessions(String objectName) throws Exception {
+        return getPerformanceMetrics(objectName,"ActiveSessions");
     }
 
     //return something for the Tableu jmx server's getPerformanceMetrics.
-    private String getPerformanceMetrics(String objectName, String variableName) {
+    private String getPerformanceMetrics(String objectName, String variableName) throws Exception {
         MBeanServerConnection mbsc = getBeans();
-        CompositeData invoked = null;
-        try {
-            invoked = (CompositeData)mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
-        } catch (InstanceNotFoundException e) {
-            e.printStackTrace();
-        } catch (MBeanException e) {
-            e.printStackTrace();
-        } catch (ReflectionException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
-        }
+
+        CompositeData invoked = (CompositeData)mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
+
         return(invoked.get(variableName).toString());
     }
 
-    public void close()  {
-        try {
+    public void close() throws IOException {
             this.jmxc.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
-    public void connectService(String JMXServiceURL) {
-        try {
+    void connectService(String JMXServiceURL) throws Exception {
             url = new JMXServiceURL(JMXServiceURL);
             jmxc = JMXConnectorFactory.connect(url, null);
-        } catch (MalformedURLException e1) {
-            e1.printStackTrace();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
     }
 
-    public MBeanServerConnection getBeans() {
-        MBeanServerConnection mbsc = null;
-        try {
-            mbsc = jmxc.getMBeanServerConnection();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        return mbsc;
+    private MBeanServerConnection getBeans() throws Exception {
+        return jmxc.getMBeanServerConnection();
     }
-
-    //                String domains[] = mbsc.getDomains();
-//                Arrays.sort(domains);
-//                for (String domain : domains) {
-//                    System.out.println("\tDomain = " + domain);
-//                }
-//
-//                System.out.println("\nMBeanServer default domain = " + mbsc.getDefaultDomain());
-//
-//                System.out.println("\nMBean count = " +  mbsc.getMBeanCount());
-//                System.out.println("\nQuery MBeanServer MBeans:");
-//                Set<ObjectName> names =
-//                        new TreeSet<ObjectName>(mbsc.queryNames(null, null));
-//                for (ObjectName name : names) {
-//                    System.out.println("\tObjectName = " + name);
-//                }
-//                //tableau.health.jmx:name=vizqlservice
-
-
-
-
-//    CompositeData szar = (CompositeData)mbsc.invoke(new ObjectName("tableau.health.jmx:name=vizqlservice"), "getPerformanceMetrics", new Object[]{}, new String[]{});
-//    System.out.println(szar.get("ActiveSessions").toString());
-
 }
