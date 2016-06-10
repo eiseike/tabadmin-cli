@@ -2,10 +2,7 @@ package net.starschema.tabadmin_cli;
 
 import java.util.regex.Pattern;
 
-/**
- * Created by balazsa on 2016.06.10..
- */
-public abstract class AbstractWorker implements Worker {
+abstract class AbstractWorker implements Worker {
 
     public abstract String getBalancerMemberName();
     public abstract String getName();
