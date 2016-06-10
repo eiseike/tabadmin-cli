@@ -2,14 +2,11 @@ package net.starschema.tabadmin_cli;
 
 import java.util.HashMap;
 
-/**
- * Created by balazsa on 2016.06.07..
- */
 public class WorkerController {
 
     static boolean Disable(Worker w, boolean set_to) {
 
-        HttpClientHelper.ModifyWorker(
+        HttpClientHelper.modifyWorker(
                 CliControl.BALANCER_MANAGER_URL,
                 w,
                 (set_to
@@ -27,7 +24,7 @@ public class WorkerController {
     }
 
     static boolean Drain(Worker w, boolean set_to) {
-        HttpClientHelper.ModifyWorker(
+        HttpClientHelper.modifyWorker(
                 CliControl.BALANCER_MANAGER_URL,
                 w,
                 (set_to

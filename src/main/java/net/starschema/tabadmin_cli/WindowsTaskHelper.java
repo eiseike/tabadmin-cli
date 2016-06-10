@@ -5,12 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.regex.Matcher;
-/**
- * Created by balazsa on 2016.06.10..
- */
+
 public class WindowsTaskHelper {
 
     public WindowsTaskHelper() throws IOException {
@@ -18,9 +13,8 @@ public class WindowsTaskHelper {
 
     public static void killProcessByPid(int tokill) throws Exception {
 
-        String cmd = "taskkill /F /PID " + tokill;
-        System.out.println(cmd);
-        //Runtime.getRuntime().exec(cmd);
+        String cmd = CliControl.TASK_KILLER + " " + tokill;
+        Runtime.getRuntime().exec(cmd);
 
     }
 

@@ -18,9 +18,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by balazsa on 2016.06.06..
- */
 public class HttpClientHelper {
 
     //get targetURL's HTML
@@ -28,7 +25,7 @@ public class HttpClientHelper {
         return Request.Get(targetURL).execute().returnContent().toString();
     }
 
-    public static String ModifyWorker(String targetURL, Worker w, HashMap<String, Integer> switches) {
+    public static String modifyWorker(String targetURL, Worker w, HashMap<String, Integer> switches) {
 
         String returnMe = null;
         CloseableHttpClient client =null;
@@ -117,11 +114,11 @@ public class HttpClientHelper {
                 //check if port exists
                 try {
                     JmxClientHelper kliens = new JmxClientHelper();
-                    kliens.ConnectService("service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi");
-                    if (!kliens.CheckBeanExists("tableau.health.jmx:name=vizqlservice")) {
+                    kliens.connectService("service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi");
+                    if (!kliens.checkBeanExists("tableau.health.jmx:name=vizqlservice")) {
                         throw new Exception("Cannot found the required MBean");
                     }
-                    kliens.Close();
+                    kliens.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (MalformedObjectNameException e) {

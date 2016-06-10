@@ -1,26 +1,22 @@
 package net.starschema.tabadmin_cli;
 
-import com.sun.org.apache.xpath.internal.SourceTree;
 import org.apache.log4j.Logger;
 
 import javax.management.MalformedObjectNameException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-/**
- * Created by balazsa on 2016.06.06..
- */
 public class CliControl {
 
     final static Logger logger = Logger.getLogger(CliControl.class);
 
     public static final String BALANCER_MANAGER_URL = "http://localhost/balancer-manager";
+    public static final String TASK_KILLER          = "taskkill /F /PID";
 
     private CliControl() {
     }
 
-    public static void SleepSTDOUTFor(int secs) throws InterruptedException {
+    public static void sleepSTDOUTFor(int secs) throws InterruptedException {
         if (secs < 2) {
             secs = 2;
         }
@@ -34,7 +30,7 @@ public class CliControl {
         System.out.println();
     }
 
-    public static String RestartWorkers() throws Exception {
+    public static String restartWorkers() throws Exception {
 
         List<VizqlserverWorker> workers = new ArrayList<VizqlserverWorker>();
 
@@ -54,14 +50,14 @@ public class CliControl {
             WorkerController.Drain(w,true);
 
             System.out.print("Wait for it!");
-            CliControl.SleepSTDOUTFor(60);
+            CliControl.sleepSTDOUTFor(60);
 
             System.out.println("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
 
             JmxClientHelper kliens = null;
             try {
                 kliens = new JmxClientHelper();
-                kliens.ConnectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
+                kliens.connectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
 
                 int currentSessions = Integer.parseInt(kliens.getActiveSessions());
                 boolean done = false;
@@ -72,12 +68,12 @@ public class CliControl {
                         WorkerController.Disable(w,true);
 
                         System.out.print("Wait for it!");
-                        CliControl.SleepSTDOUTFor(60);
+                        CliControl.sleepSTDOUTFor(60);
 
                         int pid = w.getProcessId();
                         System.out.println("Sending stop signal to process "+pid+". Sleeping 60 secs");
                         WorkerController.Kill(w);
-                        CliControl.SleepSTDOUTFor(60);
+                        CliControl.sleepSTDOUTFor(60);
 
 
                         System.out.println("Switch worker to Non-disabled mode");
@@ -87,7 +83,7 @@ public class CliControl {
                         done = true;
                     } else {
                         System.out.print("Number of active sessions " + kliens.getActiveSessions() + ". Sleeping 60secs ");
-                        CliControl.SleepSTDOUTFor(60);
+                        CliControl.sleepSTDOUTFor(60);
                     }
                 }
 
@@ -100,7 +96,7 @@ public class CliControl {
             } finally {
 
                 if (kliens != null) {
-                    kliens.Close();
+                    kliens.close();
                 }
             }
         }

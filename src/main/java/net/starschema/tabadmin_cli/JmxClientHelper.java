@@ -18,11 +18,11 @@ public class JmxClientHelper {
         this.url = null;
     }
 
-    public boolean CheckBeanExists(String objectName) throws Exception {
+    public boolean checkBeanExists(String objectName) throws Exception {
         if (jmxc == null || url == null) {
             throw new Exception("Cannot check Mbean without connection");
         }
-        MBeanServerConnection mbsc = GetBeans();
+        MBeanServerConnection mbsc = getBeans();
         try {
             mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
         } catch (InstanceNotFoundException e) {
@@ -38,7 +38,7 @@ public class JmxClientHelper {
 
     //return something for the Tableu jmx server's getPerformanceMetrics.
     private String getPerformanceMetrics(String objectName, String variableName) {
-        MBeanServerConnection mbsc = GetBeans();
+        MBeanServerConnection mbsc = getBeans();
         CompositeData invoked = null;
         try {
             invoked = (CompositeData)mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
@@ -56,7 +56,7 @@ public class JmxClientHelper {
         return(invoked.get(variableName).toString());
     }
 
-    public void Close()  {
+    public void close()  {
         try {
             this.jmxc.close();
         } catch (IOException e) {
@@ -64,7 +64,7 @@ public class JmxClientHelper {
         }
     }
 
-    public void ConnectService(String JMXServiceURL) {
+    public void connectService(String JMXServiceURL) {
         try {
             url = new JMXServiceURL(JMXServiceURL);
             jmxc = JMXConnectorFactory.connect(url, null);
@@ -75,7 +75,7 @@ public class JmxClientHelper {
         }
     }
 
-    public MBeanServerConnection GetBeans() {
+    public MBeanServerConnection getBeans() {
         MBeanServerConnection mbsc = null;
         try {
             mbsc = jmxc.getMBeanServerConnection();
