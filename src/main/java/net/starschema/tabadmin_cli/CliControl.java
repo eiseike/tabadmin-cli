@@ -11,7 +11,7 @@ class CliControl {
     }
 
     private static void sleepSTDOUTFor(int secs) throws Exception {
-        Thread.sleep(200 * secs);
+        Thread.sleep(1000 * secs);
     }
 
     static String restartWorkers() throws Exception {
@@ -42,11 +42,23 @@ class CliControl {
                 jmxClient.connectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
 
                 int activeSessions;
+                int elapsedSeconds = 0;
                 boolean done = false;
                 while (!done) {
                     activeSessions = Integer.parseInt(jmxClient.getActiveSessions(w.getMBeanObjectName()));
-                    if (0 == activeSessions) {
-                        Main.logger.info("No active sessions.");
+                    if (elapsedSeconds>=120 || 0 >= activeSessions) {
+
+                        if (elapsedSeconds>=120) {
+                            Main.logger.info("Force restart.");
+                        } else {
+                            if (0>activeSessions) {
+                                Main.logger.info("Inconclusive data from MBean : ActiveSessions = " + activeSessions + ". Force restart.");
+                                //throw new Exception("Inconclusive data from MBean : ActiveSessions = " + activeSessions);
+                            } else {
+                                Main.logger.info("No active sessions.");
+                            }
+                        }
+
                         Main.logger.info("Switch worker to Disabled mode");
                         WorkerController.disable(w);
 
@@ -60,12 +72,11 @@ class CliControl {
 
 
                         done = true;
-                    } else
-                    if (0>activeSessions) {
-                        throw new Exception("Inconclusive data from MBean : ActiveSessions = "+activeSessions);
+
                     } else {
                         Main.logger.info("Number of active sessions " + activeSessions + ". Sleeping 60secs ");
                         CliControl.sleepSTDOUTFor(60);
+                        elapsedSeconds+=60;
                     }
                 }
 
