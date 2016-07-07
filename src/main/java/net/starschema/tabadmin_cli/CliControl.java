@@ -6,7 +6,8 @@ class CliControl {
 
     static final String BALANCER_MANAGER_URL = "http://localhost/balancer-manager";
     static final String TASK_KILLER = "taskkill /F /PID";
-
+    static int FORCE_SHUTDOWN = 240;
+    static int JMX_POLLING_TIME = 60;
     private CliControl() {
     }
 
@@ -14,7 +15,7 @@ class CliControl {
         Thread.sleep(1000 * secs);
     }
 
-    static String restartWorkers() throws Exception {
+    static String restartVizqlWorkers() throws Exception {
 
         List<VizqlserverWorker> workers;
         String body;
@@ -46,9 +47,9 @@ class CliControl {
                 boolean done = false;
                 while (!done) {
                     activeSessions = Integer.parseInt(jmxClient.getActiveSessions(w.getMBeanObjectName()));
-                    if (elapsedSeconds>=120 || 0 >= activeSessions) {
+                    if (elapsedSeconds>=FORCE_SHUTDOWN || 0 >= activeSessions) {
 
-                        if (elapsedSeconds>=120) {
+                        if (elapsedSeconds>=FORCE_SHUTDOWN) {
                             Main.logger.info("Force restart.");
                         } else {
                             if (0>activeSessions) {
@@ -59,8 +60,8 @@ class CliControl {
                             }
                         }
 
-                        Main.logger.info("Switch worker to Disabled mode");
-                        WorkerController.disable(w);
+//                        Main.logger.info("Switch worker to Disabled mode");
+//                        WorkerController.disable(w);
 
                         int pid = w.getProcessId();
                         Main.logger.info("Sending stop signal to process " + pid + ". Sleeping 60 secs");
@@ -74,9 +75,9 @@ class CliControl {
                         done = true;
 
                     } else {
-                        Main.logger.info("Number of active sessions " + activeSessions + ". Sleeping 60secs ");
-                        CliControl.sleepSTDOUTFor(60);
-                        elapsedSeconds+=60;
+                        Main.logger.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
+                        CliControl.sleepSTDOUTFor(JMX_POLLING_TIME);
+                        elapsedSeconds+=JMX_POLLING_TIME;
                     }
                 }
 
