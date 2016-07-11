@@ -62,7 +62,7 @@ class HttpClientHelper {
 
 
 
-    static List<VizqlserverWorker> getworkersFromHtml(String body, String clusterName) throws Exception {
+    static List<Worker> getworkersFromHtml(String body, String clusterName, String jmxObjectName) throws Exception {
 
         String regex;
         Pattern p;
@@ -84,10 +84,10 @@ class HttpClientHelper {
         }
 
         if (nonce.equals("")) {
-            throw new Exception("Cannot found the vizqlserver load balancer in balancer-manager");
+            throw new Exception("Cannot found the worker load balancer in balancer-manager");
         }
 
-        List<VizqlserverWorker> workers = new ArrayList<>();
+        List<Worker> workers = new ArrayList<>();
 
         //Search for the workers' name
         for (String s: bodySlpit) {
@@ -103,7 +103,7 @@ class HttpClientHelper {
                 m = p.matcher(memberName);
 
                 if (!m.matches()) {
-                    throw new Exception("Cannot found the vizqlserver workers' port");
+                    throw new Exception("Cannot found the workers' port");
                 }
 
                 //calculate JMX port
@@ -112,17 +112,22 @@ class HttpClientHelper {
                 //check if port exists
                 try (JmxClientHelper jmxClient = new JmxClientHelper()) {
                     String jMXServiceURL ="service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi";
-                    String objectName = "tableau.health.jmx:name=vizqlservice";
+                    String objectName = jmxObjectName;
                     jmxClient.connectService(jMXServiceURL);
                     if (!jmxClient.checkBeanExists(objectName)) {
                         throw new Exception("Cannot found the required MBean " + jMXServiceURL + ":" + objectName);
                     }
-
                 }
-                workers.add(new VizqlserverWorker(memberName, route, nonce, jmxPort));
+
+                //TODO:fast and ugly:
+                if (clusterName == "vizqlserver-cluster") {
+                    workers.add(new WorkerVizql(memberName, route, nonce, jmxPort));
+                } else if (clusterName == "dataserver-cluster") {
+                    workers.add(new WorkerDataServer(memberName, route, nonce, jmxPort));
+                }
+
             }
         }
         return workers;
-
     }
 }

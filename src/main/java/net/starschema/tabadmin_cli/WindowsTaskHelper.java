@@ -17,11 +17,11 @@ class WindowsTaskHelper {
 
     }
 
-    static int searchForPidInWmic( Pattern pattern) throws Exception {
+    static int searchForPidInWmic(String windows_process_name, Pattern pattern) throws Exception {
         String line;
         Process p = Runtime.getRuntime().exec
                 (System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
-                        " PROCESS get Processid, Commandline");
+                        " process where \"name='" + windows_process_name + "'\" get Processid, Commandline");
         BufferedReader input =
                 new BufferedReader(new InputStreamReader(p.getInputStream()));
         while ((line = input.readLine()) != null) {

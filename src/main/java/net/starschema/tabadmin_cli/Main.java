@@ -17,7 +17,15 @@ public class Main {
 
 
         options.addOption( "h", "help", false, "This help." );
+        options.addOption( "v", "version", false, "Print version information." );
+        options.addOption( "r", "restart", false, "Restart all processes one-by-one.");
         options.addOption( "rv", "restart-vizql", false, "Restart VizQL workers." );
+        options.addOption( "rb", "restart-backgrounder", false, "Restart Backgrounder workers." );
+        options.addOption( "rp", "restart-vizportal", false, "Restart Vizportal workers." );
+        options.addOption( "rd", "restart-dataserver", false, "Restart Data Server workers." );
+        options.addOption( "pg", "reload-postgres", false, "Send reload signal to repository." );
+        options.addOption( "ra", "reload-apache", false, "Reload gateway rules." );
+        options.addOption( "f", "force", false, "Disable JMX, send signals immediately (non-graceful)." );
 
         options.addOption(OptionBuilder.withLongOpt("jmx-polling-time")
                 .withDescription("JMX data polling time")
@@ -73,12 +81,19 @@ public class Main {
 
             }
 
+            boolean need_help=true;
             if( line.hasOption( "restart-vizql" ) ) {
-//                System.out.println("CliControl.restartVizqlWorkers();");
-//                System.out.println("JmxClientHelper.JMX_POLLING_TIME = "+JmxClientHelper.JMX_POLLING_TIME );
-//                System.out.println("CliControl.FORCE_SHUTDOWN = "+CliControl.FORCE_SHUTDOWN );
+                need_help=false;
                 CliControl.restartVizqlWorkers();
-            } else {
+
+            }
+
+            if( line.hasOption( "restart-dataserver" ) ) {
+                need_help=false;
+                CliControl.restartDataServerWorkers();
+            }
+
+            if (need_help || line.hasOption("help")) {
                 HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp( "tabadmin-cli", options );
             }

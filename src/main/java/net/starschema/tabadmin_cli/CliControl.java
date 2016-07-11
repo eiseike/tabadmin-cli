@@ -11,23 +11,15 @@ class CliControl {
     private CliControl() {
     }
 
-    private static void sleepSTDOUTFor(int secs) throws Exception {
-        Thread.sleep(1000 * secs);
+    private static void sleep(int secs) throws Exception {
+        Thread.sleep(200 * secs);
     }
 
-    static String restartVizqlWorkers() throws Exception {
-
-        List<VizqlserverWorker> workers;
-        String body;
-
-        Main.logger.info("Locating vizqlserver-cluster workers from balancer-manager");
-
-        body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
-        workers = VizqlserverWorker.getworkersFromHtml(body);
-        for (VizqlserverWorker w : workers) {
+    private static void  restartWorkers(List<Worker> workers) throws Exception {
+        for (Worker w : workers) {
             Main.logger.info(w.toString());
         }
-        for (VizqlserverWorker w : workers) {
+        for (Worker w : workers) {
 
             try (JmxClientHelper jmxClient = new JmxClientHelper()) {
 
@@ -66,7 +58,7 @@ class CliControl {
                         int pid = w.getProcessId();
                         Main.logger.info("Sending stop signal to process " + pid + ". Sleeping 60 secs");
                         WorkerController.kill(w);
-                        CliControl.sleepSTDOUTFor(60);
+                        CliControl.sleep(60);
 
                         Main.logger.info("Switch worker to Non-disabled mode");
                         WorkerController.reset(w);
@@ -76,7 +68,7 @@ class CliControl {
 
                     } else {
                         Main.logger.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
-                        CliControl.sleepSTDOUTFor(JMX_POLLING_TIME);
+                        CliControl.sleep(JMX_POLLING_TIME);
                         elapsedSeconds+=JMX_POLLING_TIME;
                     }
                 }
@@ -85,6 +77,35 @@ class CliControl {
 
             }
         }
+    }
+
+    static String restartVizqlWorkers() throws Exception {
+
+        List<Worker> workers;
+        String body;
+
+        Main.logger.info("Locating vizqlserver-cluster workers from balancer-manager");
+
+        body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
+        workers = WorkerVizql.getworkersFromHtml(body);
+        restartWorkers(workers);
         return null;
     }
+
+    static String restartDataServerWorkers() throws Exception {
+
+        List<Worker> workers;
+        String body;
+
+        Main.logger.info("Locating dataserever-cluster workers from balancer-manager");
+
+        body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
+        workers = WorkerDataServer.getworkersFromHtml(body);
+        restartWorkers(workers);
+        return null;
+    }
+
+
+
+
 }

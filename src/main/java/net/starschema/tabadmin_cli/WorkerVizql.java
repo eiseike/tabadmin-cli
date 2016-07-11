@@ -2,10 +2,11 @@ package net.starschema.tabadmin_cli;
 
 import java.util.List;
 
-class VizqlserverWorker extends AbstractWorker {
+class WorkerVizql extends WorkerAbstract {
 
     //TODO: a config file would be nice.
     private static final String BALANCERMEMBER_NAME = "vizqlserver-cluster";
+    private static final String WINDOWS_PROCESS_NAME = "vizqlserver.exe";
     private static final String M_BEAN_OBJECT_NAME = "tableau.health.jmx:name=vizqlservice";
 
     private String memberName;
@@ -13,7 +14,7 @@ class VizqlserverWorker extends AbstractWorker {
     private String nonce;
     private int jmxPort;
 
-    VizqlserverWorker(String memberName, String route, String nonce, int jmxPort) {
+    WorkerVizql(String memberName, String route, String nonce, int jmxPort) {
         this.memberName = memberName;
         this.route = route;
         this.nonce = nonce;
@@ -42,8 +43,10 @@ class VizqlserverWorker extends AbstractWorker {
         return jmxPort;
     }
 
-    static List<VizqlserverWorker> getworkersFromHtml(String body) throws Exception {
-        return HttpClientHelper.getworkersFromHtml(body, BALANCERMEMBER_NAME);
+    public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
+
+    static List<Worker> getworkersFromHtml(String body) throws Exception {
+        return HttpClientHelper.getworkersFromHtml(body, BALANCERMEMBER_NAME, M_BEAN_OBJECT_NAME);
     }
 
     public String toString() {
