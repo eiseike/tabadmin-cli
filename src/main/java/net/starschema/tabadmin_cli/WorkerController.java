@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 class WorkerController {
 
-    static void disable(Worker w) throws Exception {
+    static void disable(BalancerManagerManagedWorker w) throws Exception {
         HttpClientHelper.modifyWorker(
                 CliControl.BALANCER_MANAGER_URL,
                 w,
@@ -15,7 +15,7 @@ class WorkerController {
         );
     }
 
-    static void drain(Worker w) throws Exception {
+    static void drain(BalancerManagerManagedWorker w) throws Exception {
         HttpClientHelper.modifyWorker(
                 CliControl.BALANCER_MANAGER_URL,
                 w,
@@ -25,7 +25,7 @@ class WorkerController {
         );
     }
 
-    static void reset(Worker w) throws Exception {
+    static void reset(BalancerManagerManagedWorker w) throws Exception {
         HttpClientHelper.modifyWorker(
                 CliControl.BALANCER_MANAGER_URL,
                 w,

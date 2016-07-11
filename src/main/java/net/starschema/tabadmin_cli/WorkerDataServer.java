@@ -2,7 +2,7 @@ package net.starschema.tabadmin_cli;
 
 import java.util.List;
 
-class WorkerDataServer extends WorkerAbstract {
+class WorkerDataServer extends BalancerManagerManagedWorkerAbstract {
 
     //TODO: a config file would be nice.
     private static final String BALANCERMEMBER_NAME = "dataserver-cluster";
@@ -45,7 +45,7 @@ class WorkerDataServer extends WorkerAbstract {
 
     public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
 
-    static List<Worker> getworkersFromHtml(String body) throws Exception {
+    static List<BalancerManagerManagedWorker> getworkersFromHtml(String body) throws Exception {
         return HttpClientHelper.getworkersFromHtml(body, BALANCERMEMBER_NAME, M_BEAN_OBJECT_NAME);
     }
 

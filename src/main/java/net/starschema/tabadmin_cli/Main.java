@@ -82,6 +82,13 @@ public class Main {
             }
 
             boolean need_help=true;
+
+
+            if( line.hasOption( "reload-apache" ) ) {
+                need_help=false;
+                CliControl.restartGatewayWorker();
+            }
+
             if( line.hasOption( "restart-vizql" ) ) {
                 need_help=false;
                 CliControl.restartVizqlWorkers();

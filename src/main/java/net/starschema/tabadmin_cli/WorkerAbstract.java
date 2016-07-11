@@ -2,17 +2,15 @@ package net.starschema.tabadmin_cli;
 
 import java.util.regex.Pattern;
 
-abstract class WorkerAbstract implements Worker {
+/**
+ * Created by balazsa on 2016.07.11..
+ */
+public abstract class WorkerAbstract implements Worker {
 
-    public abstract String getBalancerMemberName();
-    public abstract String getName();
-    public abstract String getNonce();
-    public abstract String getRoute();
-    public abstract int getJmxPort();
     public abstract String getWindowsProcessName();
 
     public int getProcessId() throws Exception {
-        String regex = "^\"([^\"])*"+getWindowsProcessName()+"\".*Dcom\\.sun\\.management\\.jmxremote\\.port="+getJmxPort()+" .*\\s+([0-9]+)\\s*$";
+        String regex = "^\"([^\"])*"+getWindowsProcessName()+"\".*\\s+([0-9]+)\\s*$";
         Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
 
         int pid = WindowsTaskHelper.searchForPidInWmic(getWindowsProcessName(), pattern);
@@ -21,5 +19,4 @@ abstract class WorkerAbstract implements Worker {
         }
         return pid;
     }
-
 }

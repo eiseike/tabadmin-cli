@@ -24,7 +24,7 @@ class HttpClientHelper {
         return Request.Get(targetURL).execute().returnContent().toString();
     }
 
-    static void modifyWorker(String targetURL, Worker w, HashMap<String, Integer> switches) throws Exception {
+    static void modifyWorker(String targetURL, BalancerManagerManagedWorker w, HashMap<String, Integer> switches) throws Exception {
 
         CloseableHttpClient client =null;
         try {
@@ -62,7 +62,7 @@ class HttpClientHelper {
 
 
 
-    static List<Worker> getworkersFromHtml(String body, String clusterName, String jmxObjectName) throws Exception {
+    static List<BalancerManagerManagedWorker> getworkersFromHtml(String body, String clusterName, String jmxObjectName) throws Exception {
 
         String regex;
         Pattern p;
@@ -87,7 +87,7 @@ class HttpClientHelper {
             throw new Exception("Cannot found the worker load balancer in balancer-manager");
         }
 
-        List<Worker> workers = new ArrayList<>();
+        List<BalancerManagerManagedWorker> workers = new ArrayList<>();
 
         //Search for the workers' name
         for (String s: bodySlpit) {

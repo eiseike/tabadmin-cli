@@ -2,7 +2,7 @@ package net.starschema.tabadmin_cli;
 
 import java.util.List;
 
-class WorkerVizql extends WorkerAbstract {
+class WorkerVizql extends BalancerManagerManagedWorkerAbstract {
 
     //TODO: a config file would be nice.
     private static final String BALANCERMEMBER_NAME = "vizqlserver-cluster";
@@ -45,7 +45,7 @@ class WorkerVizql extends WorkerAbstract {
 
     public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
 
-    static List<Worker> getworkersFromHtml(String body) throws Exception {
+    static List<BalancerManagerManagedWorker> getworkersFromHtml(String body) throws Exception {
         return HttpClientHelper.getworkersFromHtml(body, BALANCERMEMBER_NAME, M_BEAN_OBJECT_NAME);
     }
 

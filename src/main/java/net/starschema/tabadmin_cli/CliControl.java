@@ -15,11 +15,11 @@ class CliControl {
         Thread.sleep(200 * secs);
     }
 
-    private static void  restartWorkers(List<Worker> workers) throws Exception {
+    private static void restartBalancerManagerManagedWorkers(List<BalancerManagerManagedWorker> workers) throws Exception {
         for (Worker w : workers) {
             Main.logger.info(w.toString());
         }
-        for (Worker w : workers) {
+        for (BalancerManagerManagedWorker w : workers) {
 
             try (JmxClientHelper jmxClient = new JmxClientHelper()) {
 
@@ -81,31 +81,40 @@ class CliControl {
 
     static String restartVizqlWorkers() throws Exception {
 
-        List<Worker> workers;
+        List<BalancerManagerManagedWorker> workers;
         String body;
 
         Main.logger.info("Locating vizqlserver-cluster workers from balancer-manager");
 
         body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
         workers = WorkerVizql.getworkersFromHtml(body);
-        restartWorkers(workers);
+        restartBalancerManagerManagedWorkers(workers);
         return null;
     }
 
     static String restartDataServerWorkers() throws Exception {
 
-        List<Worker> workers;
+        List<BalancerManagerManagedWorker> workers;
         String body;
 
         Main.logger.info("Locating dataserever-cluster workers from balancer-manager");
 
         body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
         workers = WorkerDataServer.getworkersFromHtml(body);
-        restartWorkers(workers);
+        restartBalancerManagerManagedWorkers(workers);
         return null;
     }
 
+    static String restartGatewayWorker() throws Exception {
 
+        List<BalancerManagerManagedWorker> workers;
+        String body;
+
+        Main.logger.info("Restarting gateway");
+        WorkerController.kill(new WorkerGateway());
+
+        return null;
+    }
 
 
 }
