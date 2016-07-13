@@ -2,7 +2,9 @@ package net.starschema.tabadmin_cli;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.fluent.Content;
 import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -10,26 +12,26 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class HttpClientHelper {
 
     //get targetURL's HTML
-    static String getPage(String targetURL) throws IOException {
-        return Request.Get(targetURL).execute().returnContent().toString();
+    static String getPage(String targetURL) throws Exception {
+        Request x = Request.Get(targetURL);
+        Response y = x.execute();
+        Content z = y.returnContent();
+        return z.toString();
     }
 
     static void modifyWorker(String targetURL, BalancerManagerManagedWorker w, HashMap<String, Integer> switches) throws Exception {
 
-        CloseableHttpClient client =null;
-        try {
+        try (
+            CloseableHttpClient client = HttpClients.createDefault();
+        ) {
 
-            client = HttpClients.createDefault();
             HttpPost httpPost = new HttpPost(targetURL);
 
             List<NameValuePair> params = new ArrayList<>();
@@ -49,18 +51,8 @@ class HttpClientHelper {
             if ( 200 != responseCode){
                 throw new Exception("Balancer-manager returned a http response of "+responseCode);
             }
-        } finally {
-            if (client != null) {
-                try {
-                    client.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
-
-
 
     static List<BalancerManagerManagedWorker> getworkersFromHtml(String body, String clusterName, String jmxObjectName) throws Exception {
 
@@ -111,18 +103,32 @@ class HttpClientHelper {
 
                 //check if port exists
                 try (JmxClientHelper jmxClient = new JmxClientHelper()) {
-                    String jMXServiceURL ="service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi";
-                    String objectName = jmxObjectName;
-                    jmxClient.connectService(jMXServiceURL);
-                    if (!jmxClient.checkBeanExists(objectName)) {
-                        throw new Exception("Cannot found the required MBean " + jMXServiceURL + ":" + objectName);
+
+                    boolean done = false;
+                    int count = 0;
+                    String error = "";
+                    while (count++ <3) {
+                        String jMXServiceURL ="service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi";
+                        jmxClient.connectService(jMXServiceURL);
+                        if (!jmxClient.checkBeanExists(jmxObjectName)) {
+                            error = "Cannot found the required MBean " + jMXServiceURL + ":" + jmxObjectName;
+                            Main.logger.info( error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
+                            CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
+                        } else {
+                            error="";
+                            break;
+                        }
                     }
+                    if (!Objects.equals(error, "")) {
+                        throw new Exception(error);
+                    }
+
                 }
 
                 //TODO:fast and ugly:
-                if (clusterName == "vizqlserver-cluster") {
+                if (Objects.equals(clusterName, "vizqlserver-cluster")) {
                     workers.add(new WorkerVizql(memberName, route, nonce, jmxPort));
-                } else if (clusterName == "dataserver-cluster") {
+                } else if (Objects.equals(clusterName, "dataserver-cluster")) {
                     workers.add(new WorkerDataServer(memberName, route, nonce, jmxPort));
                 }
 

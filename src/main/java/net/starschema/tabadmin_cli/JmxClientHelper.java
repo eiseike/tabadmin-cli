@@ -7,8 +7,12 @@ import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Objects;
 
-class JmxClientHelper implements Closeable {
+import static com.sun.org.apache.xalan.internal.xsltc.compiler.sym.error;
+
+class JmxClientHelper implements AutoCloseable {
 
     private JMXConnector jmxc;
     private JMXServiceURL url;
@@ -44,16 +48,39 @@ class JmxClientHelper implements Closeable {
         return(invoked.get(variableName).toString());
     }
 
-    public void close() throws IOException {
+    public void close() {
+        try {
             this.jmxc.close();
+        } catch (IOException e) {
+            Main.logger.info(e.getMessage());
+        }
     }
 
-    void connectService(String JMXServiceURL) throws Exception {
-            url = new JMXServiceURL(JMXServiceURL);
-            jmxc = JMXConnectorFactory.connect(url, null);
+    void connectService(String JMXServiceURL) throws Exception  {
+
+
+        int count = 0;
+        String error = "";
+        while (count++ <3) {
+            try {
+                url = new JMXServiceURL(JMXServiceURL);
+                jmxc = JMXConnectorFactory.connect(url, null);
+                error = "";
+                break;
+            } catch (IOException e) {
+                error = e.getMessage();
+                Main.logger.info("IO error:" + error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
+                CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
+            }
+        }
+        if (!Objects.equals(error, "")) {
+            throw new Exception(error);
+        }
+
     }
 
     private MBeanServerConnection getBeans() throws Exception {
         return jmxc.getMBeanServerConnection();
     }
+
 }
