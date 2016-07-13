@@ -2,3 +2,4 @@
 PROCESS
 tabadmin-cli.iml
 target
+log4j-application.log

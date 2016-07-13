@@ -45,17 +45,19 @@ class WorkerController {
         WindowsTaskHelper.killProcessByPid(w.getProcessId());
     }
 
-    static void RestartCacheServer( String pw, int port) throws Exception {
+    static void restartCacheServer(String pw, int port) throws Exception {
 
         try ( Socket clientSocket = new Socket("localhost", port))
         {
             DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-            String xxx = "AUTH " + pw + '\n' + "SHUTDOWN SAVE" + '\n';
-            outToServer.writeBytes(xxx);
+            outToServer.writeBytes("AUTH " + pw + '\n' + "SHUTDOWN SAVE" + '\n');
         } catch (IOException e) {
             throw new Exception ( "Socket error: " + e.getMessage());
         }
+    }
 
+    static void RestartPostgreServer(String app_path, String data_dir) throws Exception {
+        Runtime.getRuntime().exec(app_path + " stop -D \""+data_dir+"\" -w ");
     }
 
 }

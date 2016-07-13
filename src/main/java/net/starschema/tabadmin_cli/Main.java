@@ -115,6 +115,11 @@ public class Main {
 
             boolean need_help = true;
 
+            if( line.hasOption("restart") || line.hasOption( "reload-postgres" ) ) {
+                need_help=false;
+                CliControl.restartRepository();
+            }
+
             if( line.hasOption("restart") || line.hasOption( "restart-cache" ) ) {
                 need_help=false;
                 CliControl.restartCacheServerWorkers();

@@ -104,6 +104,11 @@ class CliControl {
 
     }
 
+    static void restartRepository() throws Exception{
+        Main.logger.info("Restarting Repository");
+        WorkerController.RestartPostgreServer(WorkerRepositoryServer.getAppPath(), WorkerRepositoryServer.getDataDir());
+        CliControl.sleep(CliControl.WAIT_AFTER);
+    }
 
     static void restartCacheServerWorkers() throws Exception {
         Main.logger.info("Restarting Cache Server(s)");
@@ -112,7 +117,7 @@ class CliControl {
         Main.logger.info("There " +(ports.size()>1?"are":"is") +" " + ports.size()  + " port" + (ports.size()>1?"s":"") );
         for (int port : ports) {
             Main.logger.info("Restarting Cache server at port " + port);
-            WorkerController.RestartCacheServer(pw, port);
+            WorkerController.restartCacheServer(pw, port);
             CliControl.sleep(CliControl.WAIT_AFTER);
         }
     }

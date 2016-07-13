@@ -38,6 +38,6 @@ public class FileHelper {
                 }
             }
         }
-        return "";
+        throw new Exception ("Could not find " + needle + " in " + filepath);
     }
 }

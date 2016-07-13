@@ -484,3 +484,48 @@ Retrying...
 2016-07-13 16:09:37 INFO  Main:100 - Restarting Gateway
 2016-07-13 16:09:38 INFO  Main:78 - Locating vizqlserver-cluster workers from balancer-manager
 2016-07-13 16:09:41 FATAL Main:137 - Connect to localhost:80 [localhost/127.0.0.1, localhost/0:0:0:0:0:0:0:1] failed: Connection refused: connect
+2016-07-13 17:34:29 FATAL Main:151 - Cannot run program "stop": CreateProcess error=2, A rendszer nem találja a megadott fájlt
+2016-07-13 17:35:07 FATAL Main:151 - Cannot run program "stop": CreateProcess error=2, A rendszer nem találja a megadott fájlt
+2016-07-13 17:36:49 FATAL Main:151 - Could not find ^pgsql\.pgctl: (.*)$ in c:\ProgramData\Tableau\Tableau Server\data\tabsvc\config//redis.conf
+2016-07-13 17:53:40 INFO  Main:108 - Restarting Repository
+2016-07-13 17:53:45 INFO  Main:114 - Restarting Cache Server(s)
+2016-07-13 17:53:45 INFO  Main:117 - There are 2 ports
+2016-07-13 17:53:45 INFO  Main:119 - Restarting Cache server at port 6379
+2016-07-13 17:53:50 INFO  Main:119 - Restarting Cache server at port 6380
+2016-07-13 17:53:55 INFO  Main:79 - Locating vizqlserver-cluster workers from balancer-manager
+2016-07-13 17:53:56 INFO  Main:23 - vizqlserver 0:0 http://localhost:9100
+2016-07-13 17:53:56 INFO  Main:23 - vizqlserver 0:1 http://localhost:9101
+2016-07-13 17:53:56 INFO  Main:28 - Gracefully restarting worker 0:0
+2016-07-13 17:53:56 INFO  Main:29 - Switching worker to Draining mode
+2016-07-13 17:53:56 INFO  Main:33 - Connecting to JMX endpoint jmx://localhost:9400
+2016-07-13 17:53:56 INFO  Main:50 - No active sessions.
+2016-07-13 17:53:56 INFO  Main:55 - Sending stop signal to process 174084. Sleeping 60 secs
+2016-07-13 17:54:02 INFO  Main:59 - Switch worker to Non-disabled mode
+2016-07-13 17:54:02 INFO  Main:69 - Graceful restart complete
+2016-07-13 17:54:02 INFO  Main:28 - Gracefully restarting worker 0:1
+2016-07-13 17:54:02 INFO  Main:29 - Switching worker to Draining mode
+2016-07-13 17:54:02 INFO  Main:33 - Connecting to JMX endpoint jmx://localhost:9401
+2016-07-13 17:54:02 INFO  Main:50 - No active sessions.
+2016-07-13 17:54:03 INFO  Main:55 - Sending stop signal to process 174444. Sleeping 60 secs
+2016-07-13 17:54:09 INFO  Main:59 - Switch worker to Non-disabled mode
+2016-07-13 17:54:09 INFO  Main:69 - Graceful restart complete
+2016-07-13 17:54:10 INFO  Main:91 - Locating dataserever-cluster workers from balancer-manager
+2016-07-13 17:54:11 INFO  Main:23 - vizqlserver 0:0 http://localhost:9700
+2016-07-13 17:54:11 INFO  Main:23 - vizqlserver 0:1 http://localhost:9701
+2016-07-13 17:54:11 INFO  Main:28 - Gracefully restarting worker 0:0
+2016-07-13 17:54:11 INFO  Main:29 - Switching worker to Draining mode
+2016-07-13 17:54:11 INFO  Main:33 - Connecting to JMX endpoint jmx://localhost:10000
+2016-07-13 17:54:11 INFO  Main:50 - No active sessions.
+2016-07-13 17:54:15 INFO  Main:55 - Sending stop signal to process 122072. Sleeping 60 secs
+2016-07-13 17:54:22 INFO  Main:59 - Switch worker to Non-disabled mode
+2016-07-13 17:54:22 INFO  Main:69 - Graceful restart complete
+2016-07-13 17:54:23 INFO  Main:55 - Connection refused to host: 192.168.224.137; nested exception is: 
+	java.net.ConnectException: Connection refused: connect
+2016-07-13 17:54:23 INFO  Main:28 - Gracefully restarting worker 0:1
+2016-07-13 17:54:23 INFO  Main:29 - Switching worker to Draining mode
+2016-07-13 17:54:23 INFO  Main:33 - Connecting to JMX endpoint jmx://localhost:10001
+2016-07-13 17:54:23 INFO  Main:50 - No active sessions.
+2016-07-13 17:54:25 INFO  Main:55 - Sending stop signal to process 89264. Sleeping 60 secs
+2016-07-13 17:54:30 INFO  Main:59 - Switch worker to Non-disabled mode
+2016-07-13 17:54:30 INFO  Main:69 - Graceful restart complete
+2016-07-13 17:54:31 INFO  Main:101 - Restarting Gateway
