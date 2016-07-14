@@ -24,12 +24,14 @@ package net.starschema.tabadmin_cli;
 
 import java.util.List;
 
-class WorkerDataServer extends BalancerManagerManagedWorkerAbstract {
+class WorkerDataServer extends AbstractWorker implements BalancerManagerManagedWorker {
 
     //TODO: a config file would be nice.
     private static final String BALANCERMEMBER_NAME = "dataserver-cluster";
     private static final String WINDOWS_PROCESS_NAME = "dataserver.exe";
     private static final String M_BEAN_OBJECT_NAME = "tableau.health.jmx:name=dataserver";
+    private static final String SEARCH_PROCESS_REGEX = "^\"([^\"])*" + WINDOWS_PROCESS_NAME + "\".*\\s+([0-9]+)\\s*$";
+
 
     private String memberName;
     private String route;
@@ -72,7 +74,11 @@ class WorkerDataServer extends BalancerManagerManagedWorkerAbstract {
     }
 
     public String toString() {
-        return "vizqlserver " + this.route + " " + this.memberName;
+        return "dataserver " + this.route + " " + this.memberName;
+    }
+
+    public List<Integer> getProcessId(boolean multiple) throws Exception {
+        return getProcessIdHelper(multiple, SEARCH_PROCESS_REGEX);
     }
 
 }

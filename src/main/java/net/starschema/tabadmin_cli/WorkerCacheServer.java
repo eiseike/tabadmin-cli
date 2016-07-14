@@ -24,11 +24,10 @@ package net.starschema.tabadmin_cli;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import static net.starschema.tabadmin_cli.FileHelper.filePregMatch;
+import static net.starschema.tabadmin_cli.HelperFile.filePregMatch;
 
-class WorkerCacheServer extends WorkerAbstract {
+class WorkerCacheServer extends AbstractWorker {
 
     private static final String WINDOWS_PROCESS_NAME = "redis-server.exe";
 
@@ -37,9 +36,9 @@ class WorkerCacheServer extends WorkerAbstract {
 
     //"C:/Program Files/Tableau/Tableau Server/10.0/redis/bin/redis-server.exe" "C:/ProgramData/Tableau/Tableau Server/data/tabsvc/config/redis.conf" --logfile "C:/ProgramData/Tableau/Tableau Server/data/tabsvc/logs/cacheserver/redis_0.log" --dir "C:/ProgramData/Tableau/Tableau Server/data/tabsvc/cacheserver" --heapdir "C:/ProgramData/Tableau/Tableau Server/data/tabsvc/temp" --dbfilename redisdb_0.rdb --port 6379
 
-    //TODO:identify tableau's apache
-    public int getProcessId() throws Exception {
-        return -1;
+    // this worker is not killable via taskkill
+    public List<Integer> getProcessId(boolean multiple) throws Exception {
+        throw new Exception("This worker is not killable via taskkill");
     }
 
     public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
@@ -50,23 +49,23 @@ class WorkerCacheServer extends WorkerAbstract {
 
     static String getCacheServerAuthPassword() throws Exception {
 
-        if (!FileHelper.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
+        if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
             throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
         }
 
-        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + FileHelper.REDIS_CONFIG_FILENAME, "^requirepass (\\w+)$");
+        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + HelperFile.REDIS_CONFIG_FILENAME, "^requirepass (\\w+)$");
 
     }
 
     static List<Integer> getCacheServerports() throws Exception {
 
-        if (!FileHelper.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
+        if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
             throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
         }
 
-        String portline =  filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" +  FileHelper.WORKGROUP_YAML_FILENAME, "^cacheserver\\.hosts: ([,:\\w]+)$");
+        String portline =  filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" +  HelperFile.WORKGROUP_YAML_FILENAME, "^cacheserver\\.hosts: ([,:\\w]+)$");
 
-        List<Integer> ports = new ArrayList<Integer>();
+        List<Integer> ports = new ArrayList<>();
 
         for (String part : portline.split(",")) {
             String[] port = part.split(":");

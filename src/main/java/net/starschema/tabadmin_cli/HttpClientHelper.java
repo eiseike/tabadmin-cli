@@ -33,12 +33,25 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 class HttpClientHelper {
+
+    private enum BalancerManagerAcceptedPostKeys {
+        w_status_N,
+        w_status_D
+    };
+
+    private static boolean BalancerManagerAcceptedPostKeysContains(String needle) {
+        for (BalancerManagerAcceptedPostKeys c : BalancerManagerAcceptedPostKeys.values()) {
+            if (c.name().equals(needle)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     //get targetURL's HTML
     static String getPage(String targetURL) throws Exception {
@@ -51,7 +64,7 @@ class HttpClientHelper {
     static void modifyWorker(String targetURL, BalancerManagerManagedWorker w, HashMap<String, Integer> switches) throws Exception {
 
         try (
-            CloseableHttpClient client = HttpClients.createDefault();
+            CloseableHttpClient client = HttpClients.createDefault()
         ) {
 
             HttpPost httpPost = new HttpPost(targetURL);
@@ -60,8 +73,13 @@ class HttpClientHelper {
 
             for (Map.Entry<String, Integer> entry : switches.entrySet())
             {
-                params.add(new BasicNameValuePair(entry.getKey(), entry.getValue().toString()));
-
+                String key = entry.getKey();
+                String value = entry.getValue().toString();
+                if (!BalancerManagerAcceptedPostKeysContains(key)) {
+                    Main.loggerStdOut.info("Bad key in modifyWorker ("+key+","+value+")");
+                    continue;
+                }
+                params.add(new BasicNameValuePair(key, value ));
             }
             params.add(new BasicNameValuePair("b", w.getBalancerMemberName() ));
             params.add(new BasicNameValuePair("w", w.getName()));
@@ -124,9 +142,8 @@ class HttpClientHelper {
                 jmxPort = Integer.parseInt(m.group(1))+300;
 
                 //check if port exists
-                try (JmxClientHelper jmxClient = new JmxClientHelper()) {
+                try (HelperJmxClient jmxClient = new HelperJmxClient()) {
 
-                    boolean done = false;
                     int count = 0;
                     String error = "";
                     while (count++ <3) {
@@ -134,7 +151,7 @@ class HttpClientHelper {
                         jmxClient.connectService(jMXServiceURL);
                         if (!jmxClient.checkBeanExists(jmxObjectName)) {
                             error = "Cannot found the required MBean " + jMXServiceURL + ":" + jmxObjectName;
-                            Main.logger.info( error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
+                            Main.loggerStdOut.info( error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
                             CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
                         } else {
                             error="";

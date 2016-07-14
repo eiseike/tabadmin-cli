@@ -24,12 +24,12 @@ package net.starschema.tabadmin_cli;
 
 import java.util.List;
 
-class WorkerVizql extends BalancerManagerManagedWorkerAbstract {
+class WorkerVizql extends AbstractWorker implements BalancerManagerManagedWorker {
 
-    //TODO: a config file would be nice.
     private static final String BALANCERMEMBER_NAME = "vizqlserver-cluster";
     private static final String WINDOWS_PROCESS_NAME = "vizqlserver.exe";
     private static final String M_BEAN_OBJECT_NAME = "tableau.health.jmx:name=vizqlservice";
+    private static final String SEARCH_PROCESS_REGEX = "^\"([^\"])*" + WINDOWS_PROCESS_NAME + "\".*\\s+([0-9]+)\\s*$";
 
     private String memberName;
     private String route;
@@ -41,9 +41,12 @@ class WorkerVizql extends BalancerManagerManagedWorkerAbstract {
         this.route = route;
         this.nonce = nonce;
         this.jmxPort = jmxPort;
+
     }
 
-    public String getMBeanObjectName() { return M_BEAN_OBJECT_NAME; }
+    public String getMBeanObjectName() {
+        return M_BEAN_OBJECT_NAME;
+    }
 
     public String getBalancerMemberName() {
         return BALANCERMEMBER_NAME;
@@ -65,7 +68,9 @@ class WorkerVizql extends BalancerManagerManagedWorkerAbstract {
         return jmxPort;
     }
 
-    public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
+    public String getWindowsProcessName() {
+        return WINDOWS_PROCESS_NAME;
+    }
 
     static List<BalancerManagerManagedWorker> getworkersFromHtml(String body) throws Exception {
         return HttpClientHelper.getworkersFromHtml(body, BALANCERMEMBER_NAME, M_BEAN_OBJECT_NAME);
@@ -75,4 +80,7 @@ class WorkerVizql extends BalancerManagerManagedWorkerAbstract {
         return "vizqlserver " + this.route + " " + this.memberName;
     }
 
+    public List<Integer> getProcessId(boolean multiple) throws Exception {
+        return getProcessIdHelper(multiple, SEARCH_PROCESS_REGEX);
+    }
 }

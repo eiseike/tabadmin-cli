@@ -22,14 +22,18 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package net.starschema.tabadmin_cli;
 
+import java.util.List;
+
 /**
  * Iterface represents any kid of mod_balancer worker in Tableau Server gateway configuration.
  */
 interface Worker {
+
     /**
      *
-     * @return              the PID of the worker's gateway process.
-     * @throws Exception    if not found any
+     * @param multiple      if true, we expect multiple pids
+     * @return              list of pid(s) of worker(s)
+     * @throws Exception    if not found any pid
      */
-    int getProcessId() throws Exception;
+    List<Integer> getProcessId(boolean multiple) throws Exception;
 }

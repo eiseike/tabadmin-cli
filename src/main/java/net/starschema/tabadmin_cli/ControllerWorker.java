@@ -25,22 +25,20 @@ package net.starschema.tabadmin_cli;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
-class WorkerController {
+class ControllerWorker {
 
-    static void disable(BalancerManagerManagedWorker w) throws Exception {
-        HttpClientHelper.modifyWorker(
-                CliControl.BALANCER_MANAGER_URL,
-                w,
-                new HashMap<String, Integer>() {{
-                    put("w_status_D", 1);
-                }}
-
-        );
-    }
+//    static void disable(BalancerManagerManagedWorker w) throws Exception {
+//        HttpClientHelper.modifyWorker(
+//                CliControl.BALANCER_MANAGER_URL,
+//                w,
+//                new HashMap<String, Integer>() {{
+//                    put("w_status_D", 1);
+//                }}
+//
+//        );
+//    }
 
     static void drain(BalancerManagerManagedWorker w) throws Exception {
         HttpClientHelper.modifyWorker(
@@ -64,7 +62,15 @@ class WorkerController {
     }
 
     static void kill(Worker w) throws Exception {
-        WindowsTaskHelper.killProcessByPid(w.getProcessId());
+
+            HelperWindowsTask.killProcessByPid(w.getProcessId(false).get(0));
+
+    }
+
+    static void killAll(Worker w) throws Exception {
+        for (int pid : w.getProcessId(true)) {
+            HelperWindowsTask.killProcessByPid(pid);
+        }
     }
 
     static void restartCacheServer(String pw, int port) throws Exception {

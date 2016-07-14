@@ -22,18 +22,16 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package net.starschema.tabadmin_cli;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * Created by balazsa on 2016.07.12..
  */
-public class FileHelper {
+public class HelperFile {
 
     static final String REDIS_CONFIG_FILENAME ="redis.conf";
     static final String WORKGROUP_YAML_FILENAME ="workgroup.yml";

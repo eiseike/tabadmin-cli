@@ -22,17 +22,21 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package net.starschema.tabadmin_cli;
 
-import static net.starschema.tabadmin_cli.FileHelper.filePregMatch;
+import java.util.ArrayList;
+import java.util.List;
 
-class WorkerRepositoryServer extends WorkerAbstract {
+import static net.starschema.tabadmin_cli.HelperFile.filePregMatch;
+
+class WorkerRepositoryServer extends AbstractWorker {
 
     private static final String WINDOWS_PROCESS_NAME = "pg_ctl.exe";
 
     WorkerRepositoryServer() {
     }
 
-    public int getProcessId() throws Exception {
-        return -1;
+    // this worker is not killable via taskkill
+    public List<Integer> getProcessId(boolean multiple) throws Exception {
+        throw new Exception("This worker is not killable via taskkill");
     }
 
     public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
@@ -43,21 +47,21 @@ class WorkerRepositoryServer extends WorkerAbstract {
 
     static String getAppPath() throws Exception {
 
-        if (!FileHelper.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
+        if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
             throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
         }
 
-        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + FileHelper.WORKGROUP_YAML_FILENAME, "^pgsql\\.pgctl: (.*)$");
+        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + HelperFile.WORKGROUP_YAML_FILENAME, "^pgsql\\.pgctl: (.*)$");
 
     }
 
     static String getDataDir() throws Exception {
 
-        if (!FileHelper.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
+        if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
             throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
         }
 
-        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" +  FileHelper.WORKGROUP_YAML_FILENAME, "^pgsql\\.data\\.dir: (.*)$");
+        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" +  HelperFile.WORKGROUP_YAML_FILENAME, "^pgsql\\.data\\.dir: (.*)$");
 
     }
 }

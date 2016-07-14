@@ -1,3 +1,25 @@
+/*
+The MIT License (MIT)
+Copyright (c) 2016, Starschema Ltd
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be included in all copies
+or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 package net.starschema.tabadmin_cli;
 
 import java.util.List;
@@ -20,17 +42,17 @@ class CliControl {
 
     private static void restartBalancerManagerManagedWorkers(List<BalancerManagerManagedWorker> workers) throws Exception {
         for (Worker w : workers) {
-            Main.logger.info(w.toString());
+            Main.loggerStdOut.info(w.toString());
         }
         for (BalancerManagerManagedWorker w : workers) {
-            try (JmxClientHelper jmxClient = new JmxClientHelper()) {
+            try (HelperJmxClient jmxClient = new HelperJmxClient()) {
 
-                Main.logger.info("Gracefully restarting worker " + w.getRoute());
-                Main.logger.info("Switching worker to Draining mode");
+                Main.loggerStdOut.info("Gracefully restarting worker " + w.getRoute());
+                Main.loggerStdOut.info("Switching worker to Draining mode");
 
-                WorkerController.drain(w);
+                ControllerWorker.drain(w);
 
-                Main.logger.info("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
+                Main.loggerStdOut.info("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
 
                 jmxClient.connectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
 
@@ -42,31 +64,31 @@ class CliControl {
                     if (elapsedSeconds>=FORCE_SHUTDOWN || 0 >= activeSessions) {
 
                         if (elapsedSeconds>=FORCE_SHUTDOWN) {
-                            Main.logger.info("Force restart.");
+                            Main.loggerStdOut.info("Force restart.");
                         } else {
                             if (0>activeSessions) {
-                                Main.logger.info("Inconclusive data from MBean : ActiveSessions = " + activeSessions + ". Force restart.");
+                                Main.loggerStdOut.info("Inconclusive data from MBean : ActiveSessions = " + activeSessions + ". Force restart.");
                             } else {
-                                Main.logger.info("No active sessions.");
+                                Main.loggerStdOut.info("No active sessions.");
                             }
                         }
 
-                        int pid = w.getProcessId();
-                        Main.logger.info("Sending stop signal to process " + pid + ". Sleeping 60 secs");
-                        WorkerController.kill(w);
+                        int pid = w.getProcessId(false).get(0);
+                        Main.loggerStdOut.info("Sending stop signal to process " + pid);
+                        ControllerWorker.kill(w);
                         CliControl.sleep(CliControl.WAIT_AFTER);
 
-                        Main.logger.info("Switch worker to Non-disabled mode");
-                        WorkerController.reset(w);
+                        Main.loggerStdOut.info("Switch worker to Non-disabled mode");
+                        ControllerWorker.reset(w);
 
                         done = true;
                     } else {
-                        Main.logger.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
+                        Main.loggerStdOut.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
                         CliControl.sleep(JMX_POLLING_TIME);
                         elapsedSeconds+=JMX_POLLING_TIME;
                     }
                 }
-                Main.logger.info("Graceful restart complete");
+                Main.loggerStdOut.info("Graceful restart complete");
             }
         }
     }
@@ -76,7 +98,7 @@ class CliControl {
         List<BalancerManagerManagedWorker> workers;
         String body;
 
-        Main.logger.info("Locating vizqlserver-cluster workers from balancer-manager");
+        Main.loggerStdOut.info("Locating vizqlserver-cluster workers from balancer-manager");
 
         body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
         workers = WorkerVizql.getworkersFromHtml(body);
@@ -88,7 +110,7 @@ class CliControl {
         List<BalancerManagerManagedWorker> workers;
         String body;
 
-        Main.logger.info("Locating dataserever-cluster workers from balancer-manager");
+        Main.loggerStdOut.info("Locating dataserever-cluster workers from balancer-manager");
 
         body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
         workers = WorkerDataServer.getworkersFromHtml(body);
@@ -96,28 +118,34 @@ class CliControl {
 
     }
 
-    static void restartGatewayWorker() throws Exception {
+    static void restartGateway() throws Exception {
 
-        Main.logger.info("Restarting Gateway");
-        WorkerController.kill(new WorkerGateway());
+        Main.loggerStdOut.info("Restarting Gateway");
+        ControllerWorker.kill(new WorkerGateway());
         CliControl.sleep(CliControl.WAIT_AFTER);
 
     }
 
     static void restartRepository() throws Exception{
-        Main.logger.info("Restarting Repository");
-        WorkerController.RestartPostgreServer(WorkerRepositoryServer.getAppPath(), WorkerRepositoryServer.getDataDir());
+        Main.loggerStdOut.info("Restarting Repository");
+        ControllerWorker.RestartPostgreServer(WorkerRepositoryServer.getAppPath(), WorkerRepositoryServer.getDataDir());
+        CliControl.sleep(CliControl.WAIT_AFTER);
+    }
+
+    static void restartBackgrounderWorkers() throws Exception{
+        Main.loggerStdOut.info("Restarting Backgrounder(s)");
+        ControllerWorker.killAll(new WorkerBackgrounder());
         CliControl.sleep(CliControl.WAIT_AFTER);
     }
 
     static void restartCacheServerWorkers() throws Exception {
-        Main.logger.info("Restarting Cache Server(s)");
+        Main.loggerStdOut.info("Restarting Cache Server(s)");
         String pw = WorkerCacheServer.getCacheServerAuthPassword();
         List<Integer> ports = WorkerCacheServer.getCacheServerports();
-        Main.logger.info("There " +(ports.size()>1?"are":"is") +" " + ports.size()  + " port" + (ports.size()>1?"s":"") );
+        Main.loggerStdOut.info("There " +(ports.size()>1?"are":"is") +" " + ports.size()  + " port" + (ports.size()>1?"s":"") );
         for (int port : ports) {
-            Main.logger.info("Restarting Cache server at port " + port);
-            WorkerController.restartCacheServer(pw, port);
+            Main.loggerStdOut.info("Restarting Cache server at port " + port);
+            ControllerWorker.restartCacheServer(pw, port);
             CliControl.sleep(CliControl.WAIT_AFTER);
         }
     }

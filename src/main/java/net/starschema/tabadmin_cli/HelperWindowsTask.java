@@ -24,12 +24,14 @@ package net.starschema.tabadmin_cli;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class WindowsTaskHelper {
+class HelperWindowsTask {
 
-    public WindowsTaskHelper() throws Exception {
+    public HelperWindowsTask() throws Exception {
     }
 
     static void killProcessByPid(int toKill) throws Exception {
@@ -55,5 +57,24 @@ class WindowsTaskHelper {
         }
         input.close();
         return -1;
+    }
+
+    static List<Integer> searchForPidsInWmic(String windows_process_name, Pattern pattern) throws Exception {
+        String line;
+        List<Integer> ports = new ArrayList<>();
+
+        Process p = Runtime.getRuntime().exec
+                (System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
+                        " process where \"name='" + windows_process_name + "'\" get Processid, Commandline");
+        BufferedReader input =
+                new BufferedReader(new InputStreamReader(p.getInputStream()));
+        while ((line = input.readLine()) != null) {
+            Matcher m = pattern.matcher(line);
+            if (m.matches()){
+                ports.add(Integer.parseInt(m.group(2)));
+            }
+        }
+        input.close();
+        return ports;
     }
 }

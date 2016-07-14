@@ -22,23 +22,26 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package net.starschema.tabadmin_cli;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
-/**
- * Created by balazsa on 2016.07.11..
- */
-public abstract class WorkerAbstract implements Worker {
+abstract class AbstractWorker implements Worker {
 
     public abstract String getWindowsProcessName();
 
-    public int getProcessId() throws Exception {
-        String regex = "^\"([^\"])*"+getWindowsProcessName()+"\".*\\s+([0-9]+)\\s*$";
-        Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
-
-        int pid = WindowsTaskHelper.searchForPidInWmic(getWindowsProcessName(), pattern);
-        if (pid==-1) {
+    List<Integer> getProcessIdHelper(boolean multiple, String search_process_regex) throws Exception {
+        Pattern pattern = Pattern.compile(search_process_regex, Pattern.MULTILINE | Pattern.DOTALL);
+        List<Integer> pids = new ArrayList<>();
+        if (!multiple) {
+            int pid = HelperWindowsTask.searchForPidInWmic(getWindowsProcessName(), pattern);
+            pids.add(pid);
+        } else {
+            pids = HelperWindowsTask.searchForPidsInWmic(getWindowsProcessName(), pattern);
+        }
+        if (pids.size()<1) {
             throw new Exception("Cannot find PID of the worker");
         }
-        return pid;
+        return pids;
     }
 }

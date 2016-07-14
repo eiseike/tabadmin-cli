@@ -27,19 +27,16 @@ import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import java.io.Closeable;
+
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.Objects;
 
-import static com.sun.org.apache.xalan.internal.xsltc.compiler.sym.error;
-
-class JmxClientHelper implements AutoCloseable {
+class HelperJmxClient implements AutoCloseable {
 
     private JMXConnector jmxc;
     private JMXServiceURL url;
 
-    JmxClientHelper()  {
+    HelperJmxClient()  {
         this.jmxc = null;
         this.url = null;
     }
@@ -74,7 +71,9 @@ class JmxClientHelper implements AutoCloseable {
         try {
             this.jmxc.close();
         } catch (IOException e) {
-            Main.logger.info(e.getMessage());
+            //TODO: Error:Connection refused to host: 192.168.224.137; nested exception is:
+            //      java.net.ConnectException: Connection refused: connect
+            //Main.loggerStdOut.info(e.getMessage());
         }
     }
 
@@ -91,7 +90,7 @@ class JmxClientHelper implements AutoCloseable {
                 break;
             } catch (IOException e) {
                 error = e.getMessage();
-                Main.logger.info("IO error:" + error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
+                Main.loggerStdOut.info("IO error:" + error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
                 CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
             }
         }

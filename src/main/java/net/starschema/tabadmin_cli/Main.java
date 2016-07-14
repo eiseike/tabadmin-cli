@@ -1,13 +1,35 @@
-package net.starschema.tabadmin_cli;
+/*
+The MIT License (MIT)
+Copyright (c) 2016, Starschema Ltd
 
+Permission is hereby granted, free of charge, to any person obtaining a copy of this
+software and associated documentation files (the "Software"), to deal in the Software
+without restriction, including without limitation the rights to use, copy, modify,
+merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to the following
+conditions:
+
+The above copyright notice and this permission notice shall be included in all copies
+or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+package net.starschema.tabadmin_cli;
 
 import org.apache.commons.cli.*;
 import org.apache.log4j.Logger;
 
-
 public class Main {
 
-    final static Logger logger = Logger.getLogger(Main.class);
+    final static Logger loggerStdOut = Logger.getLogger(Main.class);
+    final static Logger loggerFile = Logger.getLogger("fileLogger");
+
 
     public static void main(String[] args) {
 
@@ -46,6 +68,12 @@ public class Main {
 
         options.addOption(OptionBuilder.withLongOpt("wait")
                 .withDescription("Waiting time between jobs")
+                .hasArg()
+                .withArgName("SECONDS")
+                .create());
+
+        options.addOption(OptionBuilder.withLongOpt("wait-errors")
+                .withDescription("Waiting time after errors/retries")
                 .hasArg()
                 .withArgName("SECONDS")
                 .create());
@@ -98,8 +126,8 @@ public class Main {
 
             }
 
-            int clicontrol_wait;
             if( line.hasOption( "wait" ) ) {
+                int clicontrol_wait;
                 try {
                     clicontrol_wait = Integer.parseInt( line.getOptionValue( "wait" ) );
                 }
@@ -109,8 +137,23 @@ public class Main {
                 if (clicontrol_wait<1) {
                     throw new Exception("wait must be a positive number!");
                 }
-
                 CliControl.WAIT_AFTER = clicontrol_wait;
+            }
+
+
+            if( line.hasOption( "wait-errors" ) ) {
+                int clicontrol_wait_errors = 0;
+                try {
+                    clicontrol_wait_errors = Integer.parseInt( line.getOptionValue( "wait-errors" ) );
+                }
+                catch( Exception e ) {
+                    throw new Exception("wait-errors must be a number!");
+                }
+                if (clicontrol_wait_errors<1) {
+                    throw new Exception("wait-errors must be a positive number!");
+                }
+
+                CliControl.WAIT_AFTER_ERROR = clicontrol_wait_errors;
             }
 
             boolean need_help = true;
@@ -128,7 +171,6 @@ public class Main {
             if( line.hasOption("restart") || line.hasOption( "restart-vizql" ) ) {
                 need_help=false;
                 CliControl.restartVizqlWorkers();
-
             }
 
             if( line.hasOption("restart") || line.hasOption( "restart-dataserver" ) ) {
@@ -136,9 +178,14 @@ public class Main {
                 CliControl.restartDataServerWorkers();
             }
 
+            if( line.hasOption("restart") || line.hasOption( "restart-backgrounder" ) ) {
+                need_help=false;
+                CliControl.restartBackgrounderWorkers();
+            }
+
             if( line.hasOption("restart") || line.hasOption( "reload-apache" ) ) {
                 need_help=false;
-                CliControl.restartGatewayWorker();
+                CliControl.restartGateway();
             }
 
             if (need_help || line.hasOption("help")) {
@@ -148,7 +195,10 @@ public class Main {
 
         } catch (Exception e) {
             //e.printStackTrace();
-            logger.fatal(e.getMessage());
+            loggerStdOut.info(e.getMessage());
+
+
+            loggerFile.fatal(e);
         }
     }
 }
