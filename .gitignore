@@ -3,3 +3,7 @@ PROCESS
 tabadmin-cli.iml
 target
 log4j-application.log
+dependency-reduced-pom.xml
+tabadmin-cli.ddd
+TODO.txt
+resources/config.xml
