@@ -123,7 +123,7 @@ class HttpClientHelper {
 
         //Search for the workers' name
         for (String s: bodySlpit) {
-            regex = "<td><a href=\"/balancer-manager\\?b=" + clusterName + "&w=([^&]+)&nonce=" + nonce+"[^<]*</a></td><td>([^<]+).*";
+            regex = "<td><a href=\"/balancer-manager\\?b=" + clusterName + "&w=([^&]+)&nonce=" + nonce+"[^<]*</a></td><td>([^<]+)?.*";
             p = Pattern.compile(regex, Pattern.MULTILINE | Pattern.DOTALL);
             m = p.matcher(s);
             if (m.matches()) {
@@ -138,30 +138,35 @@ class HttpClientHelper {
                     throw new Exception("Cannot found the workers' port");
                 }
 
-                //calculate JMX port
-                jmxPort = Integer.parseInt(m.group(1))+300;
+                if (!Objects.equals(jmxObjectName, "")) {
 
-                //check if port exists
-                try (HelperJmxClient jmxClient = new HelperJmxClient()) {
+                    //calculate JMX port
+                    jmxPort = Integer.parseInt(m.group(1))+300;
 
-                    int count = 0;
-                    String error = "";
-                    while (count++ <3) {
-                        String jMXServiceURL ="service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi";
-                        jmxClient.connectService(jMXServiceURL);
-                        if (!jmxClient.checkBeanExists(jmxObjectName)) {
-                            error = "Cannot found the required MBean " + jMXServiceURL + ":" + jmxObjectName;
-                            Main.loggerStdOut.info( error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
-                            CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
-                        } else {
-                            error="";
-                            break;
+                    //check if port exists
+                    try (HelperJmxClient jmxClient = new HelperJmxClient()) {
+
+                        int count = 0;
+                        String error = "";
+                        while (count++ <3) {
+                            String jMXServiceURL ="service:jmx:rmi:///jndi/rmi://:"+jmxPort+"/jmxrmi";
+                            jmxClient.connectService(jMXServiceURL);
+                            if (!jmxClient.checkBeanExists(jmxObjectName)) {
+                                error = "Cannot found the required MBean " + jMXServiceURL + ":" + jmxObjectName;
+                                Main.loggerStdOut.info( error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
+                                CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
+                            } else {
+                                error="";
+                                break;
+                            }
                         }
-                    }
-                    if (!Objects.equals(error, "")) {
-                        throw new Exception(error);
-                    }
+                        if (!Objects.equals(error, "")) {
+                            throw new Exception(error);
+                        }
 
+                    }
+                } else {
+                    jmxPort=-1;
                 }
 
                 //TODO:fast and ugly:
@@ -169,8 +174,9 @@ class HttpClientHelper {
                     workers.add(new WorkerVizql(memberName, route, nonce, jmxPort));
                 } else if (Objects.equals(clusterName, "dataserver-cluster")) {
                     workers.add(new WorkerDataServer(memberName, route, nonce, jmxPort));
+                } else if (Objects.equals(clusterName, "local-vizportal")) {
+                    workers.add(new WorkerVizportal(memberName, route, nonce, jmxPort));
                 }
-
             }
         }
         return workers;

@@ -46,7 +46,6 @@ public class Main {
         options.addOption( "rv", "restart-vizql", false, "Restart VizQL workers." );
         options.addOption( "rc", "restart-cache", false, "Restart Cache Server." );
 
-        //TODO:Backgrounder
         options.addOption( "rb", "restart-backgrounder", false, "Restart Backgrounder workers." );
 
         //TODO:Vizportal
@@ -168,6 +167,11 @@ public class Main {
                 CliControl.restartCacheServerWorkers();
             }
 
+            if( line.hasOption("restart") || line.hasOption( "restart-vizportal" ) ) {
+                need_help=false;
+                CliControl.restartVizportalWorkers();
+            }
+
             if( line.hasOption("restart") || line.hasOption( "restart-vizql" ) ) {
                 need_help=false;
                 CliControl.restartVizqlWorkers();
@@ -196,9 +200,7 @@ public class Main {
         } catch (Exception e) {
             //e.printStackTrace();
             loggerStdOut.info(e.getMessage());
-
-
-            loggerFile.fatal(e);
+            loggerFile.fatal("fatal:", e);
         }
     }
 }

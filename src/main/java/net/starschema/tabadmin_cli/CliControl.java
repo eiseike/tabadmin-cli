@@ -52,43 +52,65 @@ class CliControl {
 
                 ControllerWorker.drain(w);
 
-                Main.loggerStdOut.info("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
+                //jmxable worker
+                if (w.getJmxPort() != -1 ) {
 
-                jmxClient.connectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
+                    Main.loggerStdOut.info("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
 
-                int activeSessions;
-                int elapsedSeconds = 0;
-                boolean done = false;
-                while (!done) {
-                    activeSessions = Integer.parseInt(jmxClient.getActiveSessions(w.getMBeanObjectName()));
-                    if (elapsedSeconds>=FORCE_SHUTDOWN || 0 >= activeSessions) {
-
-                        if (elapsedSeconds>=FORCE_SHUTDOWN) {
-                            Main.loggerStdOut.info("Force restart.");
-                        } else {
-                            if (0>activeSessions) {
-                                Main.loggerStdOut.info("Inconclusive data from MBean : ActiveSessions = " + activeSessions + ". Force restart.");
-                            } else {
-                                Main.loggerStdOut.info("No active sessions.");
-                            }
-                        }
-
-                        int pid = w.getProcessId(false).get(0);
-                        Main.loggerStdOut.info("Sending stop signal to process " + pid);
-                        ControllerWorker.kill(w);
-                        CliControl.sleep(CliControl.WAIT_AFTER);
-
-                        Main.loggerStdOut.info("Switch worker to Non-disabled mode");
-                        ControllerWorker.reset(w);
-
-                        done = true;
-                    } else {
-                        Main.loggerStdOut.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
-                        CliControl.sleep(JMX_POLLING_TIME);
-                        elapsedSeconds+=JMX_POLLING_TIME;
+                    try {
+                        jmxClient.connectService("service:jmx:rmi:///jndi/rmi://:" + w.getJmxPort() + "/jmxrmi");
+                    } catch (Exception e) {
+                        Main.loggerStdOut.info(":(");
+                        throw e;
                     }
+
+                    int activeSessions;
+                    int elapsedSeconds = 0;
+                    boolean done = false;
+                    while (!done) {
+                        activeSessions = Integer.parseInt(jmxClient.getActiveSessions(w.getMBeanObjectName()));
+                        if (elapsedSeconds>=FORCE_SHUTDOWN || 0 >= activeSessions) {
+
+                            if (elapsedSeconds>=FORCE_SHUTDOWN) {
+                                Main.loggerStdOut.info("Force restart.");
+                            } else {
+                                if (0>activeSessions) {
+                                    Main.loggerStdOut.info("Inconclusive data from MBean : ActiveSessions = " + activeSessions + ". Force restart.");
+                                } else {
+                                    Main.loggerStdOut.info("No active sessions.");
+                                }
+                            }
+
+                            int pid = w.getProcessId(false).get(0);
+                            Main.loggerStdOut.info("Sending stop signal to process " + pid);
+                            ControllerWorker.kill(w);
+                            CliControl.sleep(CliControl.WAIT_AFTER);
+
+                            Main.loggerStdOut.info("Switch worker to Non-disabled mode");
+                            ControllerWorker.reset(w);
+
+                            done = true;
+                        } else {
+                            Main.loggerStdOut.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
+                            CliControl.sleep(JMX_POLLING_TIME);
+                            elapsedSeconds+=JMX_POLLING_TIME;
+                        }
+                    }
+                    Main.loggerStdOut.info("Graceful restart complete");
+
+                    //non-jmxable worker
+                } else {
+                    int pid = w.getProcessId(false).get(0);
+                    Main.loggerStdOut.info("Sending stop signal to process " + pid);
+                    ControllerWorker.kill(w);
+                    CliControl.sleep(CliControl.WAIT_AFTER);
+
+                    Main.loggerStdOut.info("Switch worker to Non-disabled mode");
+                    ControllerWorker.reset(w);
+                    Main.loggerStdOut.info("Restart complete");
+
                 }
-                Main.loggerStdOut.info("Graceful restart complete");
+
             }
         }
     }
@@ -117,6 +139,19 @@ class CliControl {
         restartBalancerManagerManagedWorkers(workers);
 
     }
+
+    static void restartVizportalWorkers() throws Exception {
+
+        List<BalancerManagerManagedWorker> workers;
+        String body;
+
+        Main.loggerStdOut.info("Locating local-vizportal workers from balancer-manager");
+
+        body = HttpClientHelper.getPage(BALANCER_MANAGER_URL);
+        workers = WorkerVizportal.getworkersFromHtml(body);
+        restartBalancerManagerManagedWorkers(workers);
+    }
+
 
     static void restartGateway() throws Exception {
 

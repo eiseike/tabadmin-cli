@@ -69,10 +69,13 @@ class HelperJmxClient implements AutoCloseable {
 
     public void close() {
         try {
-            this.jmxc.close();
+            if (this.jmxc!=null) {
+                this.jmxc.close();
+            }
         } catch (IOException e) {
             //TODO: Error:Connection refused to host: 192.168.224.137; nested exception is:
-            //      java.net.ConnectException: Connection refused: connect
+            //      java.net.ConnectException: Connection refused: connect.
+            // WHY????
             //Main.loggerStdOut.info(e.getMessage());
         }
     }

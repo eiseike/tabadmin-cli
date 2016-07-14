@@ -62,13 +62,18 @@ class ControllerWorker {
     }
 
     static void kill(Worker w) throws Exception {
-
-            HelperWindowsTask.killProcessByPid(w.getProcessId(false).get(0));
-
+            int pid = w.getProcessId(false).get(0);
+            if (pid <1) {
+                throw new Exception ("Wrong PID: "+pid);
+            }
+            HelperWindowsTask.killProcessByPid(pid);
     }
 
     static void killAll(Worker w) throws Exception {
         for (int pid : w.getProcessId(true)) {
+            if (pid <1) {
+                throw new Exception ("Wrong PID: "+pid);
+            }
             HelperWindowsTask.killProcessByPid(pid);
         }
     }
