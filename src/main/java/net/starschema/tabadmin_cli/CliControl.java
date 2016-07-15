@@ -30,9 +30,11 @@ class CliControl {
     static final String TASK_KILLER = "taskkill /F /PID";
     static int FORCE_SHUTDOWN = 240;
     static int JMX_POLLING_TIME = 60;
+    static boolean FORCE_RESTARTS = false;
     static int WAIT_AFTER = 30;
     static int WAIT_AFTER_ERROR = 60;
     static String TABSVC_CONFIG_DIR = "c:\\ProgramData\\Tableau\\Tableau Server\\data\\tabsvc\\config";
+
     private CliControl() {
     }
 
@@ -47,7 +49,11 @@ class CliControl {
         for (BalancerManagerManagedWorker w : workers) {
             try (HelperJmxClient jmxClient = new HelperJmxClient()) {
 
-                Main.loggerStdOut.info("Gracefully restarting worker " + w.getRoute());
+                if (w.getJmxPort() != -1 ) {
+                    Main.loggerStdOut.info("Gracefully restarting worker " + w.getRoute());
+                } else {
+                    Main.loggerStdOut.info("Restarting worker " + w.getRoute());
+                }
                 Main.loggerStdOut.info("Switching worker to Draining mode");
 
                 ControllerWorker.drain(w);

@@ -28,10 +28,7 @@ import java.io.FileReader;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by balazsa on 2016.07.12..
- */
-public class HelperFile {
+class HelperFile {
 
     static final String REDIS_CONFIG_FILENAME ="redis.conf";
     static final String WORKGROUP_YAML_FILENAME ="workgroup.yml";
@@ -44,13 +41,13 @@ public class HelperFile {
     static String filePregMatch(String filepath, String needle) throws Exception {
 
         Pattern p = Pattern.compile(needle);
-        Matcher m = null;
+        Matcher m;
 
         FileReader fileReader = new FileReader(filepath);
         try (
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            BufferedReader bufferedReader = new BufferedReader(fileReader)
         ) {
-            String line = null;
+            String line;
             while ((line = bufferedReader.readLine()) != null) {
                 m = p.matcher(line);
                 if (m.matches()) {

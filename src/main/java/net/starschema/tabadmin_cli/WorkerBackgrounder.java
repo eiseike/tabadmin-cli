@@ -23,7 +23,6 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 package net.starschema.tabadmin_cli;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 class WorkerBackgrounder extends AbstractWorker {
 

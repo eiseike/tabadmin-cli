@@ -80,17 +80,22 @@ class ControllerWorker {
 
     static void restartCacheServer(String pw, int port) throws Exception {
 
-        try ( Socket clientSocket = new Socket("localhost", port))
-        {
-            DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-            outToServer.writeBytes("AUTH " + pw + '\n' + "SHUTDOWN SAVE" + '\n');
-        } catch (IOException e) {
-            throw new Exception ( "Socket error: " + e.getMessage());
+        if (Main.SIMULATION < 1) {
+
+            try ( Socket clientSocket = new Socket("localhost", port))
+            {
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+                outToServer.writeBytes("AUTH " + pw + '\n' + "SHUTDOWN SAVE" + '\n');
+            } catch (IOException e) {
+                throw new Exception ( "Socket error: " + e.getMessage());
+            }
         }
     }
 
     static void RestartPostgreServer(String app_path, String data_dir) throws Exception {
-        Runtime.getRuntime().exec(app_path + " stop -D \""+data_dir+"\" -w ");
+        if (Main.SIMULATION < 1) {
+            Runtime.getRuntime().exec(app_path + " stop -D \""+data_dir+"\" -w ");
+        }
     }
 
 }

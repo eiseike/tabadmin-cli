@@ -42,7 +42,7 @@ class HttpClientHelper {
     private enum BalancerManagerAcceptedPostKeys {
         w_status_N,
         w_status_D
-    };
+    }
 
     private static boolean BalancerManagerAcceptedPostKeysContains(String needle) {
         for (BalancerManagerAcceptedPostKeys c : BalancerManagerAcceptedPostKeys.values()) {
@@ -138,7 +138,7 @@ class HttpClientHelper {
                     throw new Exception("Cannot found the workers' port");
                 }
 
-                if (!Objects.equals(jmxObjectName, "")) {
+                if (!CliControl.FORCE_RESTARTS && !Objects.equals(jmxObjectName, "")) {
 
                     //calculate JMX port
                     jmxPort = Integer.parseInt(m.group(1))+300;

@@ -22,7 +22,6 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 package net.starschema.tabadmin_cli;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static net.starschema.tabadmin_cli.HelperFile.filePregMatch;

@@ -36,16 +36,18 @@ class HelperWindowsTask {
 
     static void killProcessByPid(int toKill) throws Exception {
 
-        String cmd = CliControl.TASK_KILLER + " " + toKill;
-        Runtime.getRuntime().exec(cmd);
-
+        if (Main.SIMULATION < 1) {
+            String cmd = CliControl.TASK_KILLER + " " + toKill;
+            Runtime.getRuntime().exec(cmd);
+        }
     }
 
     static int searchForPidInWmic(String windows_process_name, Pattern pattern) throws Exception {
         String line;
-        Process p = Runtime.getRuntime().exec
-                (System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
-                        " process where \"name='" + windows_process_name + "'\" get Processid, Commandline");
+        String cmd = System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
+                " process where \"name='" + windows_process_name + "'\" get Processid, Commandline";
+        Main.loggerFile.info("exec: "+cmd);
+        Process p = Runtime.getRuntime().exec(cmd);
         BufferedReader input =
                 new BufferedReader(new InputStreamReader(p.getInputStream()));
         while ((line = input.readLine()) != null) {

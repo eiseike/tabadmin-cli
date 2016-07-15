@@ -61,7 +61,7 @@ class WorkerVizportal extends AbstractWorker implements BalancerManagerManagedWo
     }
 
     public String getRoute() {
-        return route;
+        return "";
     }
 
     public int getJmxPort() {
