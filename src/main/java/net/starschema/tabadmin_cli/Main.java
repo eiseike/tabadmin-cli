@@ -32,6 +32,8 @@ public class Main {
     final static Logger loggerStdOut = Logger.getLogger(Main.class);
     final static Logger loggerFile = Logger.getLogger("fileLogger");
 
+    final static String VERSION = "1.0";
+
     static int SIMULATION = 1;    //Simaulate all the kills/shutdowns/restarts
 
 
@@ -45,8 +47,6 @@ public class Main {
 
 
         options.addOption( "h", "help", false, "This help." );
-
-        //TODO:version
         options.addOption( "v", "version", false, "Print version information." );
         options.addOption( "r", "restart", false, "Restart all processes one-by-one.");
         options.addOption( "rv", "restart-vizql", false, "Restart VizQL workers." );
@@ -203,13 +203,16 @@ public class Main {
                     need_help=false;
                     CliControl.restartGateway();
                 }
+
+                if( line.hasOption("version")) {
+                    need_help=false;
+                    loggerStdOut.info("Version: " + Main.VERSION );
+                }
             }
 
             if (need_help || line.hasOption("help")) {
                 HelpFormatter formatter = new HelpFormatter();
                 formatter.printHelp( "tabadmin-cli", options );
-            } else {
-                loggerStdOut.info("exiting...");
             }
 
         } catch (Exception e) {

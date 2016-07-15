@@ -67,21 +67,13 @@ class HelperJmxClient implements AutoCloseable {
         return(invoked.get(variableName).toString());
     }
 
-    public void close() {
-        try {
-            if (this.jmxc!=null) {
-                this.jmxc.close();
-            }
-        } catch (IOException e) {
-            //TODO: Error:Connection refused to host: 192.168.224.137; nested exception is:
-            //      java.net.ConnectException: Connection refused: connect.
-            // WHY????
-            //Main.loggerStdOut.info(e.getMessage());
+    public void close() throws IOException {
+        if (this.jmxc!=null) {
+            this.jmxc.close();
         }
     }
 
     void connectService(String JMXServiceURL) throws Exception  {
-
 
         int count = 0;
         String error = "";
@@ -106,5 +98,4 @@ class HelperJmxClient implements AutoCloseable {
     private MBeanServerConnection getBeans() throws Exception {
         return jmxc.getMBeanServerConnection();
     }
-
 }
