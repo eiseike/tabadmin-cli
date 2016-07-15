@@ -38,7 +38,9 @@ class WorkerRepositoryServer extends AbstractWorker {
         throw new Exception("This worker is not killable via taskkill");
     }
 
-    public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
+    public String getWindowsProcessName() {
+        return WINDOWS_PROCESS_NAME;
+    }
 
     public String toString() {
         return "repository";
@@ -47,7 +49,7 @@ class WorkerRepositoryServer extends AbstractWorker {
     static String getAppPath() throws Exception {
 
         if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
-            throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
+            throw new Exception(CliControl.TABSVC_CONFIG_DIR + " is not a directory.");
         }
 
         return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + HelperFile.WORKGROUP_YAML_FILENAME, "^pgsql\\.pgctl: (.*)$");
@@ -57,10 +59,10 @@ class WorkerRepositoryServer extends AbstractWorker {
     static String getDataDir() throws Exception {
 
         if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
-            throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
+            throw new Exception(CliControl.TABSVC_CONFIG_DIR + " is not a directory.");
         }
 
-        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" +  HelperFile.WORKGROUP_YAML_FILENAME, "^pgsql\\.data\\.dir: (.*)$");
+        return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + HelperFile.WORKGROUP_YAML_FILENAME, "^pgsql\\.data\\.dir: (.*)$");
 
     }
 }

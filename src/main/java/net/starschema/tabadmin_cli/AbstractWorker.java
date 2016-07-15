@@ -39,7 +39,7 @@ abstract class AbstractWorker implements Worker {
         } else {
             pids = HelperWindowsTask.searchForPidsInWmic(getWindowsProcessName(), pattern);
         }
-        if (pids.size()<1) {
+        if (pids.size() < 1) {
             throw new Exception("Cannot find PID of the worker");
         }
         return pids;

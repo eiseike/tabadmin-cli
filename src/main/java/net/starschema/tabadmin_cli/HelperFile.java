@@ -30,8 +30,8 @@ import java.util.regex.Pattern;
 
 class HelperFile {
 
-    static final String REDIS_CONFIG_FILENAME ="redis.conf";
-    static final String WORKGROUP_YAML_FILENAME ="workgroup.yml";
+    static final String REDIS_CONFIG_FILENAME = "redis.conf";
+    static final String WORKGROUP_YAML_FILENAME = "workgroup.yml";
 
     static boolean checkIfDir(String path) {
         File f = new File(path);
@@ -45,7 +45,7 @@ class HelperFile {
 
         FileReader fileReader = new FileReader(filepath);
         try (
-            BufferedReader bufferedReader = new BufferedReader(fileReader)
+                BufferedReader bufferedReader = new BufferedReader(fileReader)
         ) {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
@@ -55,6 +55,6 @@ class HelperFile {
                 }
             }
         }
-        throw new Exception ("Could not find " + needle + " in " + filepath);
+        throw new Exception("Could not find " + needle + " in " + filepath);
     }
 }

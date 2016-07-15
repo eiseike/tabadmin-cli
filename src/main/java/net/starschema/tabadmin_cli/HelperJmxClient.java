@@ -36,7 +36,7 @@ class HelperJmxClient implements AutoCloseable {
     private JMXConnector jmxc;
     private JMXServiceURL url;
 
-    HelperJmxClient()  {
+    HelperJmxClient() {
         this.jmxc = null;
         this.url = null;
     }
@@ -55,29 +55,29 @@ class HelperJmxClient implements AutoCloseable {
     }
 
     String getActiveSessions(String objectName) throws Exception {
-        return getPerformanceMetrics(objectName,"ActiveSessions");
+        return getPerformanceMetrics(objectName, "ActiveSessions");
     }
 
     //return something for the Tableu jmx server's getPerformanceMetrics.
     private String getPerformanceMetrics(String objectName, String variableName) throws Exception {
         MBeanServerConnection mbsc = getBeans();
 
-        CompositeData invoked = (CompositeData)mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
+        CompositeData invoked = (CompositeData) mbsc.invoke(new ObjectName(objectName), "getPerformanceMetrics", new Object[]{}, new String[]{});
 
-        return(invoked.get(variableName).toString());
+        return (invoked.get(variableName).toString());
     }
 
     public void close() throws IOException {
-        if (this.jmxc!=null) {
+        if (this.jmxc != null) {
             this.jmxc.close();
         }
     }
 
-    void connectService(String JMXServiceURL) throws Exception  {
+    void connectService(String JMXServiceURL) throws Exception {
 
         int count = 0;
         String error = "";
-        while (count++ <3) {
+        while (count++ < 3) {
             try {
                 url = new JMXServiceURL(JMXServiceURL);
                 jmxc = JMXConnectorFactory.connect(url, null);
@@ -85,7 +85,7 @@ class HelperJmxClient implements AutoCloseable {
                 break;
             } catch (IOException e) {
                 error = e.getMessage();
-                Main.loggerStdOut.info("IO error:" + error +"\nRetrying after "+ CliControl.WAIT_AFTER_ERROR +" seconds...");
+                Main.loggerStdOut.info("IO error:" + error + "\nRetrying after " + CliControl.WAIT_AFTER_ERROR + " seconds...");
                 CliControl.sleep(CliControl.WAIT_AFTER_ERROR);
             }
         }

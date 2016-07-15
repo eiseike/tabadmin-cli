@@ -34,7 +34,9 @@ class WorkerBackgrounder extends AbstractWorker {
 
     //"C:/Program Files/Tableau/Tableau Server/10.0/bin/backgrounder.exe" -c tabsvc -XX:+UseConcMarkSweepGC -Xmx512m -Xms256m -Dcom.sun.management.jmxremote.port=8550 -Dcom.sun.management.jmxremote.rmi.port=8552 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false "-XX:ErrorFile=C:/ProgramData/Tableau/Tableau Server/data/tabsvc/logs/backgrounder/hs_err-0_pid%p.log" -Dlicensing.logFileName=backgrounder "-Djava.util.logging.config.file=C:/ProgramData/Tableau/Tableau Server/data/tabsvc/backgrounder/0/conf/logging.properties" -Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager "-Djava.class.path=C:/Program Files/Tableau/Tableau Server/10.0/tomcat/bin/bootstrap.jar;C:/Program Files/Tableau/Tableau Server/10.0/tomcat/bin/tomcat-juli.jar" "-Djava.library.path=C:/Program Files/Tableau/Tableau Server/10.0/bin" "-Dcatalina.base=C:/ProgramData/Tableau/Tableau Server/data/tabsvc/backgrounder/0" "-Dcatalina.home=C:/Program Files/Tableau/Tableau Server/10.0/tomcat" "-Djava.io.tmpdir=C:/ProgramData/Tableau/Tableau Server/data/tabsvc/temp" "-Dconfig.properties=file:C:/ProgramData/Tableau/Tableau Server/data/tabsvc/config/backgrounder.properties" "-Dconnections.properties=file:C:/ProgramData/Tableau/Tableau Server/data/tabsvc/config/connections.properties" "-Dlog4j.configuration=file:C:/ProgramData/Tableau/Tableau Server/data/tabsvc/backgrounder/0/conf/log4j.xml" -Duser.timezone=UTC -Dprocid=0 -Djna.nosys=true org.apache.catalina.startup.Bootstrap start
 
-    public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
+    public String getWindowsProcessName() {
+        return WINDOWS_PROCESS_NAME;
+    }
 
     public String toString() {
         return "backgrounder";

@@ -49,7 +49,7 @@ class CliControl {
         for (BalancerManagerManagedWorker w : workers) {
             try (HelperJmxClient jmxClient = new HelperJmxClient()) {
 
-                if (w.getJmxPort() != -1 ) {
+                if (w.getJmxPort() != -1) {
                     Main.loggerStdOut.info("Gracefully restarting worker " + w.getRoute());
                 } else {
                     Main.loggerStdOut.info("Restarting worker " + w.getRoute());
@@ -59,7 +59,7 @@ class CliControl {
                 ControllerWorker.drain(w);
 
                 //jmxable worker
-                if (w.getJmxPort() != -1 ) {
+                if (w.getJmxPort() != -1) {
 
                     Main.loggerStdOut.info("Connecting to JMX endpoint jmx://localhost:" + w.getJmxPort());
 
@@ -75,12 +75,12 @@ class CliControl {
                     boolean done = false;
                     while (!done) {
                         activeSessions = Integer.parseInt(jmxClient.getActiveSessions(w.getMBeanObjectName()));
-                        if (elapsedSeconds>=FORCE_SHUTDOWN || 0 >= activeSessions) {
+                        if (elapsedSeconds >= FORCE_SHUTDOWN || 0 >= activeSessions) {
 
-                            if (elapsedSeconds>=FORCE_SHUTDOWN) {
+                            if (elapsedSeconds >= FORCE_SHUTDOWN) {
                                 Main.loggerStdOut.info("Force restart.");
                             } else {
-                                if (0>activeSessions) {
+                                if (0 > activeSessions) {
                                     Main.loggerStdOut.info("Inconclusive data from MBean : ActiveSessions = " + activeSessions + ". Force restart.");
                                 } else {
                                     Main.loggerStdOut.info("No active sessions.");
@@ -97,9 +97,9 @@ class CliControl {
 
                             done = true;
                         } else {
-                            Main.loggerStdOut.info("Number of active sessions " + activeSessions + ". Sleeping "+JMX_POLLING_TIME+" secs ");
+                            Main.loggerStdOut.info("Number of active sessions " + activeSessions + ". Sleeping " + JMX_POLLING_TIME + " secs ");
                             CliControl.sleep(JMX_POLLING_TIME);
-                            elapsedSeconds+=JMX_POLLING_TIME;
+                            elapsedSeconds += JMX_POLLING_TIME;
                         }
                     }
                     Main.loggerStdOut.info("Graceful restart complete");
@@ -167,13 +167,13 @@ class CliControl {
 
     }
 
-    static void restartRepository() throws Exception{
+    static void restartRepository() throws Exception {
         Main.loggerStdOut.info("Restarting Repository");
         ControllerWorker.RestartPostgreServer(WorkerRepositoryServer.getAppPath(), WorkerRepositoryServer.getDataDir());
         CliControl.sleep(CliControl.WAIT_AFTER);
     }
 
-    static void restartBackgrounderWorkers() throws Exception{
+    static void restartBackgrounderWorkers() throws Exception {
         Main.loggerStdOut.info("Restarting Backgrounder(s)");
         ControllerWorker.killAll(new WorkerBackgrounder());
         CliControl.sleep(CliControl.WAIT_AFTER);
@@ -183,7 +183,7 @@ class CliControl {
         Main.loggerStdOut.info("Restarting Cache Server(s)");
         String pw = WorkerCacheServer.getCacheServerAuthPassword();
         List<Integer> ports = WorkerCacheServer.getCacheServerports();
-        Main.loggerStdOut.info("There " +(ports.size()>1?"are":"is") +" " + ports.size()  + " port" + (ports.size()>1?"s":"") );
+        Main.loggerStdOut.info("There " + (ports.size() > 1 ? "are" : "is") + " " + ports.size() + " port" + (ports.size() > 1 ? "s" : ""));
         for (int port : ports) {
             Main.loggerStdOut.info("Restarting Cache server at port " + port);
             ControllerWorker.restartCacheServer(pw, port);

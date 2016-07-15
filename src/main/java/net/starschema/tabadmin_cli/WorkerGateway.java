@@ -27,7 +27,7 @@ import java.util.List;
 class WorkerGateway extends AbstractWorker {
 
     private static final String WINDOWS_PROCESS_NAME = "httpd.exe";
-    private static final String SEARCH_PROCESS_REGEX = "^\"([^\"])*"+ WINDOWS_PROCESS_NAME +"\" -E.*\\s+([0-9]+)\\s*$" ;
+    private static final String SEARCH_PROCESS_REGEX = "^\"([^\"])*" + WINDOWS_PROCESS_NAME + "\" -E.*\\s+([0-9]+)\\s*$";
 
     WorkerGateway() {
     }
@@ -41,7 +41,9 @@ class WorkerGateway extends AbstractWorker {
         return getProcessIdHelper(multiple, SEARCH_PROCESS_REGEX);
     }
 
-    public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
+    public String getWindowsProcessName() {
+        return WINDOWS_PROCESS_NAME;
+    }
 
     public String toString() {
         return "httpd";

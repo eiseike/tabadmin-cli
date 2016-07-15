@@ -8,7 +8,6 @@
     <artifactId>tabadmin-cli</artifactId>
     <version>1.0</version>
     <dependencies>
-
         <!-- http://mvnrepository.com/artifact/commons-io/commons-io -->
         <dependency>
             <groupId>commons-io</groupId>
@@ -43,14 +42,9 @@
             <artifactId>commons-cli</artifactId>
             <version>1.2</version>
         </dependency>
-
-
-
     </dependencies>
     <build>
         <plugins>
-
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -63,7 +57,8 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>net.starschema.tabadmin_cli.Main</mainClass>
                                 </transformer>
                             </transformers>
@@ -71,7 +66,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>

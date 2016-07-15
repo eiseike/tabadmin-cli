@@ -29,17 +29,6 @@ import java.util.HashMap;
 
 class ControllerWorker {
 
-//    static void disable(BalancerManagerManagedWorker w) throws Exception {
-//        HttpClientHelper.modifyWorker(
-//                CliControl.BALANCER_MANAGER_URL,
-//                w,
-//                new HashMap<String, Integer>() {{
-//                    put("w_status_D", 1);
-//                }}
-//
-//        );
-//    }
-
     static void drain(BalancerManagerManagedWorker w) throws Exception {
         HttpClientHelper.modifyWorker(
                 CliControl.BALANCER_MANAGER_URL,
@@ -62,17 +51,17 @@ class ControllerWorker {
     }
 
     static void kill(Worker w) throws Exception {
-            int pid = w.getProcessId(false).get(0);
-            if (pid <1) {
-                throw new Exception ("Wrong PID: "+pid);
-            }
-            HelperWindowsTask.killProcessByPid(pid);
+        int pid = w.getProcessId(false).get(0);
+        if (pid < 1) {
+            throw new Exception("Wrong PID: " + pid);
+        }
+        HelperWindowsTask.killProcessByPid(pid);
     }
 
     static void killAll(Worker w) throws Exception {
         for (int pid : w.getProcessId(true)) {
-            if (pid <1) {
-                throw new Exception ("Wrong PID: "+pid);
+            if (pid < 1) {
+                throw new Exception("Wrong PID: " + pid);
             }
             HelperWindowsTask.killProcessByPid(pid);
         }
@@ -82,19 +71,18 @@ class ControllerWorker {
 
         if (Main.SIMULATION < 1) {
 
-            try ( Socket clientSocket = new Socket("localhost", port))
-            {
+            try (Socket clientSocket = new Socket("localhost", port)) {
                 DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
                 outToServer.writeBytes("AUTH " + pw + '\n' + "SHUTDOWN SAVE" + '\n');
             } catch (IOException e) {
-                throw new Exception ( "Socket error: " + e.getMessage());
+                throw new Exception("Socket error: " + e.getMessage());
             }
         }
     }
 
     static void RestartPostgreServer(String app_path, String data_dir) throws Exception {
         if (Main.SIMULATION < 1) {
-            Runtime.getRuntime().exec(app_path + " stop -D \""+data_dir+"\" -w ");
+            Runtime.getRuntime().exec(app_path + " stop -D \"" + data_dir + "\" -w ");
         }
     }
 

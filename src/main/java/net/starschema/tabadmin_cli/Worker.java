@@ -30,10 +30,9 @@ import java.util.List;
 interface Worker {
 
     /**
-     *
-     * @param multiple      if true, we expect multiple pids
-     * @return              list of pid(s) of worker(s)
-     * @throws Exception    if not found any pid
+     * @param multiple if true, we expect multiple pids
+     * @return list of pid(s) of worker(s)
+     * @throws Exception if not found any pid
      */
     List<Integer> getProcessId(boolean multiple) throws Exception;
 }

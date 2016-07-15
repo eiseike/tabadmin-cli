@@ -41,7 +41,9 @@ class WorkerCacheServer extends AbstractWorker {
         throw new Exception("This worker is not killable via taskkill");
     }
 
-    public String getWindowsProcessName() { return WINDOWS_PROCESS_NAME; }
+    public String getWindowsProcessName() {
+        return WINDOWS_PROCESS_NAME;
+    }
 
     public String toString() {
         return "cacheserver";
@@ -50,7 +52,7 @@ class WorkerCacheServer extends AbstractWorker {
     static String getCacheServerAuthPassword() throws Exception {
 
         if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
-            throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
+            throw new Exception(CliControl.TABSVC_CONFIG_DIR + " is not a directory.");
         }
 
         return filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + HelperFile.REDIS_CONFIG_FILENAME, "^requirepass (\\w+)$");
@@ -60,10 +62,10 @@ class WorkerCacheServer extends AbstractWorker {
     static List<Integer> getCacheServerports() throws Exception {
 
         if (!HelperFile.checkIfDir(CliControl.TABSVC_CONFIG_DIR)) {
-            throw new Exception(CliControl.TABSVC_CONFIG_DIR +" is not a directory.");
+            throw new Exception(CliControl.TABSVC_CONFIG_DIR + " is not a directory.");
         }
 
-        String portline =  filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" +  HelperFile.WORKGROUP_YAML_FILENAME, "^cacheserver\\.hosts: ([,:\\w]+)$");
+        String portline = filePregMatch(CliControl.TABSVC_CONFIG_DIR + "//" + HelperFile.WORKGROUP_YAML_FILENAME, "^cacheserver\\.hosts: ([,:\\w]+)$");
 
         List<Integer> ports = new ArrayList<>();
 

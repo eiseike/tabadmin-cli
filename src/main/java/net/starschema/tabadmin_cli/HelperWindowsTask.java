@@ -44,15 +44,15 @@ class HelperWindowsTask {
 
     static int searchForPidInWmic(String windows_process_name, Pattern pattern) throws Exception {
         String line;
-        String cmd = System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
+        String cmd = System.getenv("windir") + "\\system32\\wbem\\wmic.exe " +
                 " process where \"name='" + windows_process_name + "'\" get Processid, Commandline";
-        Main.loggerFile.info("exec: "+cmd);
+        Main.loggerFile.info("exec: " + cmd);
         Process p = Runtime.getRuntime().exec(cmd);
         BufferedReader input =
                 new BufferedReader(new InputStreamReader(p.getInputStream()));
         while ((line = input.readLine()) != null) {
             Matcher m = pattern.matcher(line);
-            if (m.matches()){
+            if (m.matches()) {
                 input.close();
                 return Integer.parseInt(m.group(2));
             }
@@ -66,13 +66,13 @@ class HelperWindowsTask {
         List<Integer> ports = new ArrayList<>();
 
         Process p = Runtime.getRuntime().exec
-                (System.getenv("windir") +"\\system32\\wbem\\wmic.exe "+
+                (System.getenv("windir") + "\\system32\\wbem\\wmic.exe " +
                         " process where \"name='" + windows_process_name + "'\" get Processid, Commandline");
         BufferedReader input =
                 new BufferedReader(new InputStreamReader(p.getInputStream()));
         while ((line = input.readLine()) != null) {
             Matcher m = pattern.matcher(line);
-            if (m.matches()){
+            if (m.matches()) {
                 ports.add(Integer.parseInt(m.group(2)));
             }
         }
